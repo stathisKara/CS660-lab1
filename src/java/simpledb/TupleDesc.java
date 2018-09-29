@@ -38,6 +38,7 @@ public class TupleDesc implements Serializable {
     }
 
     private TDItem items[];
+
     /**
      * @return An iterator which iterates over all the field TDItems
      * that are included in this TupleDesc
@@ -81,8 +82,8 @@ public class TupleDesc implements Serializable {
             exit(2);
         }
         this.items = new TDItem[typeAr_len];
-        for (int i=0; i<typeAr_len; i++)
-            items[i]= new TDItem(typeAr[i], fieldAr[i]);
+        for (int i = 0; i < typeAr_len; i++)
+            items[i] = new TDItem(typeAr[i], fieldAr[i]);
     }
 
     /**
@@ -100,8 +101,8 @@ public class TupleDesc implements Serializable {
             exit(1);
         }
         this.items = new TDItem[typeAr_len];
-        for (int i=0; i<typeAr_len; i++)
-            items[i]= new TDItem(typeAr[i], null);
+        for (int i = 0; i < typeAr_len; i++)
+            items[i] = new TDItem(typeAr[i], null);
     }
 
     /**
@@ -110,7 +111,6 @@ public class TupleDesc implements Serializable {
     public int numFields() {
         // some code goes here
         return this.items.length;
-//        return 0;
     }
 
     /**
@@ -200,13 +200,24 @@ public class TupleDesc implements Serializable {
      */
     public boolean equals(Object o) {
         // some code goes here
+        if (o == null) return false;
+        if (o == this) return true;
+        if (!(o instanceof TupleDesc)) return false;
+        TupleDesc tempTupD = (TupleDesc)o;
+        if (tempTupD.items.length != this.items.length) return false;
+        for (int i=0; i <this.items.length; i++) {
+            if (tempTupD.items[i].fieldType != this.items[i].fieldType)
+                return false;
+        }
         return false;
     }
 
     public int hashCode() {
         // If you want to use TupleDesc as keys for HashMap, implement this so
         // that equal objects have equals hashCode() results
-        throw new UnsupportedOperationException("unimplemented");
+        return Arrays.deepHashCode(this.items);
+
+//        throw new UnsupportedOperationException("unimplemented");
     }
 
     /**
@@ -221,10 +232,10 @@ public class TupleDesc implements Serializable {
 //        String result = "" ;
         StringBuilder result = new StringBuilder();
         int len = this.items.length;
-        for (int i=0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             if (i != 0)
                 result.append(",");
-            result.append(this.items[i].fieldType + "[" + i + "] (" + this.items[i].fieldName + "[" + i + "])");
+            result.append(this.items[i].toString());
         }
         return result.toString();
     }
