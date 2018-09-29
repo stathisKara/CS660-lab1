@@ -176,8 +176,9 @@ public class TupleDesc implements Serializable {
         }
         int len = this.items.length;
         for (int i = 0; i < len; i++) {
-            if (this.items[i].fieldName.equals(name))
-                return i;
+            if (this.items[i].fieldName!=null)
+                if (this.items[i].fieldName.equals(name))
+                    return i;
         }
         System.out.println("Index not found\n");
         throw new NoSuchElementException();
@@ -243,6 +244,7 @@ public class TupleDesc implements Serializable {
         String[] combinedFields = new String[combinedLength];
 
         int i = 0;
+        System.out.println(Arrays.toString(td1.items));
         while (it1.hasNext()){
             combinedTypes[i] = it1.next().fieldType;
             combinedFields[i] = it1.next().fieldName;
@@ -269,7 +271,7 @@ public class TupleDesc implements Serializable {
     public boolean equals(Object o) {
         // some code goes here
         if (o == null) return false;
-        if (o == this) return true;
+        //if (o == this) return true;
         if (!(o instanceof TupleDesc)) return false;
         TupleDesc tempTupD = (TupleDesc)o;
         if (tempTupD.items.length != this.items.length) return false;
@@ -277,7 +279,7 @@ public class TupleDesc implements Serializable {
             if (tempTupD.items[i].fieldType != this.items[i].fieldType)
                 return false;
         }
-        return false;
+        return true;
     }
 
     public int hashCode() {

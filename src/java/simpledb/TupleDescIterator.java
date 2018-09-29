@@ -21,7 +21,9 @@ public class TupleDescIterator implements Iterator {
     @Override
     public TupleDesc.TDItem next() {
         if (this.hasNext()) {
-            return td.getItems()[position++];
+            TupleDesc.TDItem x = td.getItems()[position];
+            position++;
+            return x;
         }
 
         else
