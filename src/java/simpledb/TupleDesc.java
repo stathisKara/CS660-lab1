@@ -165,12 +165,14 @@ public class TupleDesc implements Serializable {
      * @return the index of the field that is first to have the given name.
      * @throws NoSuchElementException if no field with a matching name is found.
      */
+
+    //converter
     public int fieldNameToIndex(String name) throws NoSuchElementException {
         // some code goes here
         if (name == null) {
             throw new NoSuchElementException();
             // this is a test comment
-            
+
         }
         int len = this.items.length;
         for (int i = 0; i < len; i++) {
@@ -309,6 +311,4 @@ public class TupleDesc implements Serializable {
     public TDItem[] getItems() {
         return items;
     }
-
-    // adding a new line
 }
