@@ -47,7 +47,7 @@ public class TupleDesc implements Serializable {
     public Iterator<TDItem> iterator() {
         // some code goes here
         //for all items in t
-        return null;
+        return new TupleIterator(this, );
     }
 
     private static final long serialVersionUID = 1L;
