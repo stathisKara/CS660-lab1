@@ -165,14 +165,10 @@ public class TupleDesc implements Serializable {
      * @return the index of the field that is first to have the given name.
      * @throws NoSuchElementException if no field with a matching name is found.
      */
-
-    //converter
     public int fieldNameToIndex(String name) throws NoSuchElementException {
         // some code goes here
         if (name == null) {
             throw new NoSuchElementException();
-            // this is a test comment
-
         }
         int len = this.items.length;
         for (int i = 0; i < len; i++) {
@@ -185,46 +181,23 @@ public class TupleDesc implements Serializable {
     }
 
     /**
-    Get size of object
-     */
-    /*public static class ObjectSizeFetcher {
-        private static Instrumentation instrumentation;
-
-        public static void premain(String args, Instrumentation inst) {
-            instrumentation = inst;
-        }
-
-        public static long getObjectSize(Object o) {
-            return instrumentation.getObjectSize(o);
-        }
-    }*/
-    public static class InstrumentationAgent {
-        private static volatile Instrumentation globalInstrumentation;
-
-        public static void premain(final String agentArgs, final Instrumentation inst) {
-            globalInstrumentation = inst;
-        }
-
-        public static long getObjectSize(final Object object) {
-            if (globalInstrumentation == null) {
-                throw new IllegalStateException("Agent not initialized.");
-            }
-            return globalInstrumentation.getObjectSize(object);
-        }
-    }
-
-    /**
      * @return The size (in bytes) of tuples corresponding to this TupleDesc.
      * Note that tuples from a given TupleDesc are of a fixed size.
      */
     public int getSize() {
-        /*int size = 0;
-        Iterator<TDItem> it = iterator();
+        int size = 0;
+        TupleDescIterator it = new TupleDescIterator(this);
         while (it.hasNext()) {
-            size += InstrumentationAgent.getObjectSize(it.next().fieldType);
+            switch (it.next().fieldType) {
+                case INT_TYPE:
+                    size += Type.INT_TYPE.getLen();
+                    break;
+                case STRING_TYPE:
+                    size += Type.STRING_TYPE.getLen();
+                    break;
+            }
         }
-        return size;*/
-        return 8;
+        return size;
     }
 
     /**
@@ -237,6 +210,9 @@ public class TupleDesc implements Serializable {
      */
     public static TupleDesc merge(TupleDesc td1, TupleDesc td2) {
         // some code goes here
+        if (td1 == null || td2 == null) {
+            return null;
+        }
         TupleDescIterator it1 = new TupleDescIterator(td1);
         TupleDescIterator it2 = new TupleDescIterator(td2);
         int combinedLength = td1.numFields() + td2.numFields();
@@ -246,14 +222,16 @@ public class TupleDesc implements Serializable {
         int i = 0;
         System.out.println(Arrays.toString(td1.items));
         while (it1.hasNext()){
-            combinedTypes[i] = it1.next().fieldType;
-            combinedFields[i] = it1.next().fieldName;
+            TDItem y = it1.next();
+            combinedTypes[i] = y.fieldType;
+            combinedFields[i] = y.fieldName;
             i++;
         }
 
         while (it2.hasNext()){
-            combinedTypes[i] = it2.next().fieldType;
-            combinedFields[i] = it2.next().fieldName;
+            TDItem z = it2.next();
+            combinedTypes[i] = z.fieldType;
+            combinedFields[i] = z.fieldName;
             i++;
         }
 

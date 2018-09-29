@@ -25,7 +25,6 @@ public class TupleDescIterator implements Iterator {
             position++;
             return x;
         }
-
         else
             return null;
     }
