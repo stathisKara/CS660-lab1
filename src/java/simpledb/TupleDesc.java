@@ -169,6 +169,7 @@ public class TupleDesc implements Serializable {
         // some code goes here
         if (name == null) {
             throw new NoSuchElementException();
+            
         }
         int len = this.items.length;
         for (int i = 0; i < len; i++) {
