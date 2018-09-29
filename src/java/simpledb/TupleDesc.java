@@ -169,6 +169,7 @@ public class TupleDesc implements Serializable {
         // some code goes here
         if (name == null) {
             throw new NoSuchElementException();
+            // this is a test comment
             
         }
         int len = this.items.length;
@@ -308,4 +309,6 @@ public class TupleDesc implements Serializable {
     public TDItem[] getItems() {
         return items;
     }
+
+    // adding a new line
 }
