@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5207ffb6-a322-4034-8b6f-f5c5fe40d764" name="Default Changelist" comment="added getSize functionality" />
+    <list default="true" id="5207ffb6-a322-4034-8b6f-f5c5fe40d764" name="Default Changelist" comment="added getSize functionality">
+      <change afterPath="$PROJECT_DIR$/src/java/simpledb/TupleDescIterator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/depcache/dependencies.txt" beforeDir="false" afterPath="$PROJECT_DIR$/bin/depcache/dependencies.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/src/simpledb/TupleDesc$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/src/simpledb/TupleDesc$ObjectSizeFetcher.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/src/simpledb/TupleDesc$TupleDescIterator.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/src/simpledb/TupleDesc.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/src/simpledb/TupleDesc.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/simpledb/TupleDesc.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/simpledb/TupleDesc.java" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/bin/src/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,23 +28,27 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="java" value="3" />
+          <entry key="MF" value="1" />
+          <entry key="java" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="JAVA" value="3" />
+          <entry key="JAVA" value="5" />
+          <entry key="Manifest" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="java" value="750" />
+          <entry key="MF" value="6" />
+          <entry key="java" value="1765" />
           <entry key="txt" value="44" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="750" />
+          <entry key="JAVA" value="1765" />
+          <entry key="Manifest" value="6" />
           <entry key="PLAIN_TEXT" value="44" />
         </counts>
       </usages-collector>
@@ -51,14 +64,71 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/java/simpledb/TupleDesc.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1315">
-              <caret line="216" column="26" lean-forward="true" selection-start-line="216" selection-start-column="26" selection-end-line="216" selection-end-column="26" />
+            <state relative-caret-position="267">
+              <caret line="167" column="75" lean-forward="true" selection-start-line="167" selection-start-column="75" selection-end-line="167" selection-end-column="75" />
               <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#6067#6068#0" expanded="true" />
-                <element signature="e#6113#6114#0" expanded="true" />
-                <element signature="e#6167#6168#0" expanded="true" />
-                <element signature="e#6230#6231#0" expanded="true" />
+                <element signature="docComment;class#TupleDesc#0" />
+                <element signature="docComment;class#TDItem#0;class#TupleDesc#0" />
+                <element signature="class#TDItem#0;class#TupleDesc#0" />
+                <element signature="docComment;field#items#0;class#TupleDesc#0" />
+                <element signature="docComment;method#iterator#0;class#TupleDesc#0" />
+                <element signature="method#iterator#0;class#TupleDesc#0" />
+                <element signature="docComment;method#TupleDesc#0;class#TupleDesc#0" />
+                <element signature="method#TupleDesc#0;class#TupleDesc#0" />
+                <element signature="docComment;method#TupleDesc#1;class#TupleDesc#0" />
+                <element signature="method#TupleDesc#1;class#TupleDesc#0" />
+                <element signature="docComment;method#numFields#0;class#TupleDesc#0" />
+                <element signature="method#numFields#0;class#TupleDesc#0" />
+                <element signature="docComment;method#getFieldName#0;class#TupleDesc#0" />
+                <element signature="method#getFieldName#0;class#TupleDesc#0" />
+                <element signature="docComment;method#getFieldType#0;class#TupleDesc#0" />
+                <element signature="method#getFieldType#0;class#TupleDesc#0" />
+                <element signature="docComment;method#fieldNameToIndex#0;class#TupleDesc#0" />
+                <element signature="docComment;class#InstrumentationAgent#0;class#TupleDesc#0" />
+                <element signature="class#InstrumentationAgent#0;class#TupleDesc#0" />
+                <element signature="e#6004#6005#0" expanded="true" />
+                <element signature="e#6056#6057#0" expanded="true" />
+                <element signature="method#getObjectSize#0;class#InstrumentationAgent#0;class#TupleDesc#0" />
+                <element signature="docComment;method#getSize#0;class#TupleDesc#0" />
+                <element signature="method#getSize#0;class#TupleDesc#0" />
+                <element signature="docComment;method#merge#0;class#TupleDesc#0" />
+                <element signature="method#merge#0;class#TupleDesc#0" />
+                <element signature="docComment;method#equals#0;class#TupleDesc#0" />
+                <element signature="method#equals#0;class#TupleDesc#0" />
+                <element signature="method#hashCode#0;class#TupleDesc#0" />
+                <element signature="docComment;method#toString#0;class#TupleDesc#0" />
+                <element signature="method#toString#0;class#TupleDesc#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/simpledb/TupleDescTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="408">
+              <caret line="113" column="28" lean-forward="true" selection-start-line="113" selection-start-column="28" selection-end-line="113" selection-end-column="28" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="jar://$PROJECT_DIR$/lib/junit-4.5.jar!/META-INF/MANIFEST.MF">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="51">
+              <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/simpledb/TupleDescIterator.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="357">
+              <caret line="21" column="27" selection-start-line="21" selection-start-column="27" selection-end-line="21" selection-end-column="27" />
+              <folding>
+                <element signature="e#224#225#0" expanded="true" />
+                <element signature="e#258#259#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -67,7 +137,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/simpledb/TupleIterator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
+            <state relative-caret-position="391">
               <caret line="23" column="19" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="19" />
             </state>
           </provider>
@@ -84,12 +154,20 @@
       </file>
     </leaf>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
+        <option value="$PROJECT_DIR$/src/java/simpledb/TupleDescIterator.java" />
         <option value="$PROJECT_DIR$/src/java/simpledb/TupleDesc.java" />
       </list>
     </option>
@@ -114,6 +192,24 @@
             <path>
               <item name="simpledb" type="b2602c69:ProjectViewProjectNode" />
               <item name="CS660-lab1" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="simpledb" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CS660-lab1" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="junit-4.5.jar" type="ab9368bb:PsiFileNode" />
+            </path>
+            <path>
+              <item name="simpledb" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CS660-lab1" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="junit-4.5.jar" type="ab9368bb:PsiFileNode" />
+              <item name="META-INF" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="simpledb" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CS660-lab1" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -129,6 +225,26 @@
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="simpledb" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="simpledb" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CS660-lab1" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="simpledb" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CS660-lab1" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="simpledb" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="simpledb" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+            </path>
+            <path>
+              <item name="simpledb" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="&lt; 11 &gt;" type="70bed36:NamedLibraryElementNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -138,7 +254,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1538238705212" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1538243251142" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RunDashboard">
@@ -177,21 +293,22 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-6" y="-6" width="1549" height="837" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Favorites" side_tool="true" />
-      <window_info id="Image Layers" />
-      <window_info id="Designer" />
-      <window_info id="UI Designer" />
-      <window_info id="Capture Tool" />
-      <window_info id="Learn" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22803487" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="0" side_tool="true" />
+      <window_info id="Image Layers" order="1" />
+      <window_info id="Designer" order="2" />
+      <window_info id="UI Designer" order="3" />
+      <window_info id="Capture Tool" order="4" />
+      <window_info id="Learn" order="5" />
+      <window_info content_ui="combo" id="Project" order="6" visible="true" weight="0.22803487" />
+      <window_info id="Structure" order="7" weight="0.24949698" />
       <window_info anchor="bottom" id="Version Control" sideWeight="0.49966466" weight="0.3286119" />
       <window_info anchor="bottom" id="Terminal" sideWeight="0.49966466" weight="0.3286119" />
       <window_info anchor="bottom" id="Event Log" sideWeight="0.50033534" side_tool="true" weight="0.3286119" />
-      <window_info active="true" anchor="bottom" id="Messages" visible="true" weight="0.3286119" />
+      <window_info anchor="bottom" id="Messages" weight="0.3286119" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49966466" weight="0.32577905" />
+      <window_info active="true" anchor="bottom" id="Find" order="1" sideWeight="0.49966466" visible="true" weight="0.32577905" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -224,21 +341,72 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/simpledb/TupleIterator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
+        <state relative-caret-position="391">
           <caret line="23" column="19" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/simpledb/TupleDescIterator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="21" column="27" selection-start-line="21" selection-start-column="27" selection-end-line="21" selection-end-column="27" />
+          <folding>
+            <element signature="e#224#225#0" expanded="true" />
+            <element signature="e#258#259#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/junit-4.5.jar!/META-INF/MANIFEST.MF">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/simpledb/TupleDescTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="113" column="28" lean-forward="true" selection-start-line="113" selection-start-column="28" selection-end-line="113" selection-end-column="28" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/simpledb/TupleDesc.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1315">
-          <caret line="216" column="26" lean-forward="true" selection-start-line="216" selection-start-column="26" selection-end-line="216" selection-end-column="26" />
+        <state relative-caret-position="267">
+          <caret line="167" column="75" lean-forward="true" selection-start-line="167" selection-start-column="75" selection-end-line="167" selection-end-column="75" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#6067#6068#0" expanded="true" />
-            <element signature="e#6113#6114#0" expanded="true" />
-            <element signature="e#6167#6168#0" expanded="true" />
-            <element signature="e#6230#6231#0" expanded="true" />
+            <element signature="docComment;class#TupleDesc#0" />
+            <element signature="docComment;class#TDItem#0;class#TupleDesc#0" />
+            <element signature="class#TDItem#0;class#TupleDesc#0" />
+            <element signature="docComment;field#items#0;class#TupleDesc#0" />
+            <element signature="docComment;method#iterator#0;class#TupleDesc#0" />
+            <element signature="method#iterator#0;class#TupleDesc#0" />
+            <element signature="docComment;method#TupleDesc#0;class#TupleDesc#0" />
+            <element signature="method#TupleDesc#0;class#TupleDesc#0" />
+            <element signature="docComment;method#TupleDesc#1;class#TupleDesc#0" />
+            <element signature="method#TupleDesc#1;class#TupleDesc#0" />
+            <element signature="docComment;method#numFields#0;class#TupleDesc#0" />
+            <element signature="method#numFields#0;class#TupleDesc#0" />
+            <element signature="docComment;method#getFieldName#0;class#TupleDesc#0" />
+            <element signature="method#getFieldName#0;class#TupleDesc#0" />
+            <element signature="docComment;method#getFieldType#0;class#TupleDesc#0" />
+            <element signature="method#getFieldType#0;class#TupleDesc#0" />
+            <element signature="docComment;method#fieldNameToIndex#0;class#TupleDesc#0" />
+            <element signature="docComment;class#InstrumentationAgent#0;class#TupleDesc#0" />
+            <element signature="class#InstrumentationAgent#0;class#TupleDesc#0" />
+            <element signature="e#6004#6005#0" expanded="true" />
+            <element signature="e#6056#6057#0" expanded="true" />
+            <element signature="method#getObjectSize#0;class#InstrumentationAgent#0;class#TupleDesc#0" />
+            <element signature="docComment;method#getSize#0;class#TupleDesc#0" />
+            <element signature="method#getSize#0;class#TupleDesc#0" />
+            <element signature="docComment;method#merge#0;class#TupleDesc#0" />
+            <element signature="method#merge#0;class#TupleDesc#0" />
+            <element signature="docComment;method#equals#0;class#TupleDesc#0" />
+            <element signature="method#equals#0;class#TupleDesc#0" />
+            <element signature="method#hashCode#0;class#TupleDesc#0" />
+            <element signature="docComment;method#toString#0;class#TupleDesc#0" />
+            <element signature="method#toString#0;class#TupleDesc#0" />
           </folding>
         </state>
       </provider>

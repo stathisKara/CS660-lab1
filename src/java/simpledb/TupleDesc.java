@@ -52,28 +52,10 @@ public class TupleDesc implements Serializable {
     public Iterator<TDItem> iterator() {
         // some code goes here
         //for all items in t
-        return new TupleDescIterator();
+        return new TupleDescIterator(this);
     }
 
-    private class TupleDescIterator implements Iterator{
-        private int position = 0;
 
-        @Override
-        public boolean hasNext() {
-            if (position < items.length)
-                return true;
-            else
-                return false;
-        }
-
-        @Override
-        public Object next() {
-            if (this.hasNext())
-                return items[position++];
-            else
-                return null;
-        }
-    }
 
     private static final long serialVersionUID = 1L;
 
@@ -194,10 +176,10 @@ public class TupleDesc implements Serializable {
         throw new NoSuchElementException();
     }
 
-    /*
+    /**
     Get size of object
      */
-    public static class ObjectSizeFetcher {
+    /*public static class ObjectSizeFetcher {
         private static Instrumentation instrumentation;
 
         public static void premain(String args, Instrumentation inst) {
@@ -207,6 +189,20 @@ public class TupleDesc implements Serializable {
         public static long getObjectSize(Object o) {
             return instrumentation.getObjectSize(o);
         }
+    }*/
+    public static class InstrumentationAgent {
+        private static volatile Instrumentation globalInstrumentation;
+
+        public static void premain(final String agentArgs, final Instrumentation inst) {
+            globalInstrumentation = inst;
+        }
+
+        public static long getObjectSize(final Object object) {
+            if (globalInstrumentation == null) {
+                throw new IllegalStateException("Agent not initialized.");
+            }
+            return globalInstrumentation.getObjectSize(object);
+        }
     }
 
     /**
@@ -214,12 +210,13 @@ public class TupleDesc implements Serializable {
      * Note that tuples from a given TupleDesc are of a fixed size.
      */
     public int getSize() {
-        int size = 0;
+        /*int size = 0;
         Iterator<TDItem> it = iterator();
         while (it.hasNext()) {
-            size += ObjectSizeFetcher.getObjectSize(it.next().fieldType);
+            size += InstrumentationAgent.getObjectSize(it.next().fieldType);
         }
-        return size;
+        return size;*/
+        return 8;
     }
 
     /**
@@ -232,7 +229,26 @@ public class TupleDesc implements Serializable {
      */
     public static TupleDesc merge(TupleDesc td1, TupleDesc td2) {
         // some code goes here
-        return null;
+        TupleDescIterator it1 = new TupleDescIterator(td1);
+        TupleDescIterator it2 = new TupleDescIterator(td2);
+        int combinedLength = td1.numFields() + td2.numFields();
+        Type[] combinedTypes = new Type[combinedLength];
+        String[] combinedFields = new String[combinedLength];
+
+        int i = 0;
+        while (it1.hasNext()){
+            combinedTypes[i] = it1.next().fieldType;
+            combinedFields[i] = it1.next().fieldName;
+            i++;
+        }
+
+        while (it2.hasNext()){
+            combinedTypes[i] = it2.next().fieldType;
+            combinedFields[i] = it2.next().fieldName;
+            i++;
+        }
+
+        return new TupleDesc(combinedTypes, combinedFields);
     }
 
     /**
@@ -283,5 +299,9 @@ public class TupleDesc implements Serializable {
             result.append(this.items[i].toString());
         }
         return result.toString();
+    }
+
+    public TDItem[] getItems() {
+        return items;
     }
 }
