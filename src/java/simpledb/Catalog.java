@@ -22,8 +22,12 @@ public class Catalog {
      * Constructor.
      * Creates a new, empty catalog.
      */
+    private Vector<HeapFile> catalog;
+    private Vector<TupleDesc> descriptors;
     public Catalog() {
         // some code goes here
+        catalog = new Vector<>();
+        descriptors = new Vector<>();
     }
 
     /**
