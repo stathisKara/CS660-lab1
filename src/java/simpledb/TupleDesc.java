@@ -83,7 +83,7 @@ public class TupleDesc implements Serializable {
         }
         this.items = new TDItem[typeAr_len];
         for (int i = 0; i < typeAr_len; i++)
-            items[i] = new TDItem(typeAr[i], fieldAr[i]);
+            this.items[i] = new TDItem(typeAr[i], fieldAr[i]);
     }
 
     /**
@@ -102,7 +102,7 @@ public class TupleDesc implements Serializable {
         }
         this.items = new TDItem[typeAr_len];
         for (int i = 0; i < typeAr_len; i++)
-            items[i] = new TDItem(typeAr[i], null);
+            this.items[i] = new TDItem(typeAr[i], null);
     }
 
     /**
@@ -159,6 +159,9 @@ public class TupleDesc implements Serializable {
      */
     public int fieldNameToIndex(String name) throws NoSuchElementException {
         // some code goes here
+        if (name == null) {
+            throw new NoSuchElementException();
+        }
         int len = this.items.length;
         for (int i = 0; i < len; i++) {
             if (this.items[i].fieldName.equals(name))
