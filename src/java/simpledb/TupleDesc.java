@@ -37,7 +37,12 @@ public class TupleDesc implements Serializable {
         }
     }
 
+    /**
+     * container for TDItems
+     * This will be iterated over with the following iterator
+     */
     private TDItem items[];
+    
     /**
      * @return An iterator which iterates over all the field TDItems
      * that are included in this TupleDesc
@@ -45,7 +50,27 @@ public class TupleDesc implements Serializable {
     public Iterator<TDItem> iterator() {
         // some code goes here
         //for all items in t
-        return new TupleIterator(this, );
+        return new TupleDescIterator();
+    }
+
+    private class TupleDescIterator implements Iterator{
+        private int position = 0;
+
+        @Override
+        public boolean hasNext() {
+            if (position < items.length)
+                return true;
+            else
+                return false;
+        }
+
+        @Override
+        public Object next() {
+            if (this.hasNext())
+                return items[position++];
+            else
+                return null;
+        }
     }
 
     private static final long serialVersionUID = 1L;
