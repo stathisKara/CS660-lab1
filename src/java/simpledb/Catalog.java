@@ -22,12 +22,15 @@ public class Catalog {
      * Constructor.
      * Creates a new, empty catalog.
      */
-    private Vector<HeapFile> catalog;
-    private Vector<TupleDesc> descriptors;
+    private Vector<DbFile> catalog;
+    private Vector<String> names;
+    private Vector<String> pkeys;
+
     public Catalog() {
         // some code goes here
         catalog = new Vector<>();
-        descriptors = new Vector<>();
+        names = new Vector<>();
+        pkeys = new Vector<>();
     }
 
     /**
@@ -41,6 +44,10 @@ public class Catalog {
      */
     public void addTable(DbFile file, String name, String pkeyField) {
         // some code goes here
+        file.getTupleDesc().fieldNameToIndex(pkeyField);
+        catalog.add(file);
+        names.add(name);
+        pkeys.add(pkeyField);
     }
 
     public void addTable(DbFile file, String name) {
