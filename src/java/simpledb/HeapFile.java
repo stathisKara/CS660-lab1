@@ -15,6 +15,9 @@ import java.util.*;
  */
 public class HeapFile implements DbFile {
 
+    File fileDesc;
+    TupleDesc tupleDesc;
+
     /**
      * Constructs a heap file backed by the specified file.
      * 
@@ -24,6 +27,11 @@ public class HeapFile implements DbFile {
      */
     public HeapFile(File f, TupleDesc td) {
         // some code goes here
+        if (f ==null){
+            throw new NullPointerException("You need to specify a name of an existing file\n");
+        }
+        this.fileDesc = f;
+        this.tupleDesc = td;
     }
 
     /**
