@@ -37,9 +37,7 @@ public class TupleDesc implements Serializable {
         }
     }
 
-    Type[] t_types;
-    String[] t_fields;
-
+    private TDItem items[];
     /**
      * @return An iterator which iterates over all the field TDItems
      * that are included in this TupleDesc
@@ -82,8 +80,9 @@ public class TupleDesc implements Serializable {
             System.out.println("Number of field names should be the same as number of field types\n");
             exit(2);
         }
-        this.t_types = typeAr;
-        this.t_fields = fieldAr;
+        this.items = new TDItem[typeAr_len];
+        for (int i=0; i<typeAr_len; i++)
+            items[i]= new TDItem(typeAr[i], fieldAr[i]);
     }
 
     /**
@@ -100,8 +99,9 @@ public class TupleDesc implements Serializable {
             System.out.println("Table should have at least one field\n");
             exit(1);
         }
-        this.t_types = typeAr;
-        this.t_fields = new String[typeAr_len];
+        this.items = new TDItem[typeAr_len];
+        for (int i=0; i<typeAr_len; i++)
+            items[i]= new TDItem(typeAr[i], null);
     }
 
     /**
@@ -109,7 +109,7 @@ public class TupleDesc implements Serializable {
      */
     public int numFields() {
         // some code goes here
-        return this.t_fields.length;
+        return this.items.length;
 //        return 0;
     }
 
@@ -123,9 +123,9 @@ public class TupleDesc implements Serializable {
     public String getFieldName(int i) throws NoSuchElementException {
         // some code goes here
         try {
-            return this.t_fields[i];
+            return this.items[i].fieldName;
         } catch (NoSuchElementException e) {
-            System.out.println("The tuple only contains " + this.t_fields.length +
+            System.out.println("The tuple only contains " + this.items.length +
                     "and not " + i);
         }
         return null;
@@ -142,9 +142,9 @@ public class TupleDesc implements Serializable {
     public Type getFieldType(int i) throws NoSuchElementException {
         // some code goes here
         try {
-            return this.t_types[i];
+            return this.items[i].fieldType;
         } catch (NoSuchElementException e) {
-            System.out.println("The tuple only contains " + this.t_types.length +
+            System.out.println("The tuple only contains " + this.items.length +
                     "and not " + i);
         }
         return null;
@@ -159,9 +159,9 @@ public class TupleDesc implements Serializable {
      */
     public int fieldNameToIndex(String name) throws NoSuchElementException {
         // some code goes here
-        int len = this.t_fields.length;
+        int len = this.items.length;
         for (int i = 0; i < len; i++) {
-            if (this.t_fields[i].equals(name))
+            if (this.items[i].fieldName.equals(name))
                 return i;
         }
         System.out.println("Index not found\n");
@@ -218,6 +218,14 @@ public class TupleDesc implements Serializable {
      */
     public String toString() {
         // some code goes here
-        return "";
+//        String result = "" ;
+        StringBuilder result = new StringBuilder();
+        int len = this.items.length;
+        for (int i=0; i < len; i++) {
+            if (i != 0)
+                result.append(",");
+            result.append(this.items[i].fieldType + "[" + i + "] (" + this.items[i].fieldName + "[" + i + "])");
+        }
+        return result.toString();
     }
 }
