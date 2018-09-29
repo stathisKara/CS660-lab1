@@ -13,6 +13,7 @@ public class Tuple implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private TupleDesc tupleDesc;
+    private Field fields[];
     /**
      * Create a new tuple with the specified schema (type).
      *
@@ -22,8 +23,19 @@ public class Tuple implements Serializable {
      */
     public Tuple(TupleDesc td) {
         // some code goes here
+        if (td == null){
+            System.out.println("Tuple Descriptor cannot be NULL\n");
+            return;
+        }
+        if (td.numFields() <=0){
+            System.out.println("Tuple Descriptor needs to have at least 1 type\n");
+            return;
+        }
         this.tupleDesc = td;
+        this.fields = new Field[tupleDesc.numFields()];
     }
+
+
 
     /**
      * @return The TupleDesc representing the schema of this tuple.
@@ -62,6 +74,15 @@ public class Tuple implements Serializable {
      */
     public void setField(int i, Field f) {
         // some code goes here
+        if (i<0 || i > tupleDesc.numFields()){
+            System.out.println("Index out of bounds (i = " + i +")\n");
+            return;
+        }
+        if (!f.getType().equals(this.fields[i].getType())){
+            System.out.println("Fields types don't match\n");
+            return;
+        }
+        this.fields[i]=f;
     }
 
     /**
@@ -72,7 +93,11 @@ public class Tuple implements Serializable {
      */
     public Field getField(int i) {
         // some code goes here
-        return null;
+        if (i<0 || i > tupleDesc.numFields()){
+            System.out.println("Index out of bounds (i = " + i +")\n");
+            return null;
+        }
+        return this.fields[i];
     }
 
     /**
@@ -85,7 +110,14 @@ public class Tuple implements Serializable {
      */
     public String toString() {
         // some code goes here
-        throw new UnsupportedOperationException("Implement this");
+        if (fields.length<=0)
+            throw new UnsupportedOperationException("No values in this tuple");
+        StringBuilder result = new StringBuilder();
+        for (Field field : this.fields){
+            result.append(field.toString());
+            result.append("\t");
+        }
+        return result.toString();
     }
 
     /**

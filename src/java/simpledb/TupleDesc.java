@@ -220,7 +220,6 @@ public class TupleDesc implements Serializable {
         String[] combinedFields = new String[combinedLength];
 
         int i = 0;
-        System.out.println(Arrays.toString(td1.items));
         while (it1.hasNext()){
             TDItem y = it1.next();
             combinedTypes[i] = y.fieldType;
@@ -249,7 +248,7 @@ public class TupleDesc implements Serializable {
     public boolean equals(Object o) {
         // some code goes here
         if (o == null) return false;
-        //if (o == this) return true;
+        if (o == this) return true;
         if (!(o instanceof TupleDesc)) return false;
         TupleDesc tempTupD = (TupleDesc)o;
         if (tempTupD.items.length != this.items.length) return false;
