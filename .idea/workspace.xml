@@ -2,23 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5207ffb6-a322-4034-8b6f-f5c5fe40d764" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/bin/depcache/dependencies.txt" beforeDir="false" afterPath="$PROJECT_DIR$/bin/depcache/dependencies.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/CatalogTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/CatalogTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/HeapFileReadTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/HeapFileReadTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/HeapPageIdTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/HeapPageIdTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/HeapPageReadTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/HeapPageReadTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/RecordIdTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/RecordIdTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/TestUtil$CreateHeapFile.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/TestUtil$CreateHeapFile.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/TestUtil$LockGrabber.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/TestUtil$LockGrabber.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/TestUtil$MockScan.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/TestUtil$MockScan.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/TestUtil$SkeletonFile.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/TestUtil$SkeletonFile.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/TestUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/TestUtil.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/TupleDescTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/TupleDescTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/TupleTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/TupleTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/systemtest/ScanTest$1InstrumentedHeapFile.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/systemtest/ScanTest$1InstrumentedHeapFile.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/systemtest/ScanTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/systemtest/ScanTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/systemtest/SimpleDbTestBase.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/systemtest/SimpleDbTestBase.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/test/simpledb/systemtest/SystemTestUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/simpledb/systemtest/SystemTestUtil.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/java/simpledb/TupleDesc.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/simpledb/TupleDesc.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/bin/src/" />
@@ -48,15 +31,19 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="java" value="587" />
+          <entry key="java" value="741" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="587" />
+          <entry key="JAVA" value="741" />
         </counts>
       </usages-collector>
-      <usages-collector id="statistics.vcs.git.usages" />
+      <usages-collector id="statistics.vcs.git.usages">
+        <counts>
+          <entry key="git.branch.checkout.local" value="1" />
+        </counts>
+      </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
@@ -64,8 +51,15 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/java/simpledb/TupleDesc.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="31" column="31" lean-forward="true" selection-start-line="31" selection-start-column="31" selection-end-line="31" selection-end-column="31" />
+            <state relative-caret-position="170">
+              <caret line="217" column="8" lean-forward="true" selection-start-line="217" selection-start-column="8" selection-end-line="217" selection-end-column="8" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#6067#6068#0" expanded="true" />
+                <element signature="e#6113#6114#0" expanded="true" />
+                <element signature="e#6167#6168#0" expanded="true" />
+                <element signature="e#6230#6231#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -74,7 +68,7 @@
         <entry file="file://$PROJECT_DIR$/src/java/simpledb/TupleIterator.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="289">
-              <caret line="23" column="19" lean-forward="true" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="19" />
+              <caret line="23" column="19" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -144,7 +138,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1538236352923" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1538238611445" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RunDashboard">
@@ -191,13 +185,13 @@
       <window_info id="UI Designer" />
       <window_info id="Capture Tool" />
       <window_info id="Learn" />
-      <window_info content_ui="combo" id="Project" order="0" weight="0.22803487" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22803487" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Version Control" sideWeight="0.49966466" weight="0.3286119" />
       <window_info anchor="bottom" id="Terminal" sideWeight="0.49966466" weight="0.3286119" />
       <window_info anchor="bottom" id="Event Log" sideWeight="0.50033534" side_tool="true" weight="0.3286119" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info active="true" anchor="bottom" id="Find" order="1" sideWeight="0.49966466" visible="true" weight="0.32577905" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49966466" visible="true" weight="0.32577905" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -227,14 +221,21 @@
     <entry file="file://$PROJECT_DIR$/src/java/simpledb/TupleIterator.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
-          <caret line="23" column="19" lean-forward="true" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="19" />
+          <caret line="23" column="19" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="19" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/simpledb/TupleDesc.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="31" column="31" lean-forward="true" selection-start-line="31" selection-start-column="31" selection-end-line="31" selection-end-column="31" />
+        <state relative-caret-position="170">
+          <caret line="217" column="8" lean-forward="true" selection-start-line="217" selection-start-column="8" selection-end-line="217" selection-end-column="8" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#6067#6068#0" expanded="true" />
+            <element signature="e#6113#6114#0" expanded="true" />
+            <element signature="e#6167#6168#0" expanded="true" />
+            <element signature="e#6230#6231#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

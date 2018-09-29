@@ -2,6 +2,8 @@ package simpledb;
 
 import java.io.Serializable;
 import java.util.*;
+import java.lang.instrument.Instrumentation;
+
 
 import static java.lang.System.exit;
 
@@ -193,13 +195,32 @@ public class TupleDesc implements Serializable {
         throw new NoSuchElementException();
     }
 
+    /*
+    Get size of object
+     */
+    public static class ObjectSizeFetcher {
+        private static Instrumentation instrumentation;
+
+        public static void premain(String args, Instrumentation inst) {
+            instrumentation = inst;
+        }
+
+        public static long getObjectSize(Object o) {
+            return instrumentation.getObjectSize(o);
+        }
+    }
+
     /**
      * @return The size (in bytes) of tuples corresponding to this TupleDesc.
      * Note that tuples from a given TupleDesc are of a fixed size.
      */
     public int getSize() {
-        // some code goes here
-        return 0;
+        int size = 0;
+        Iterator<TDItem> it = iterator();
+        while (it.hasNext()) {
+            size += ObjectSizeFetcher.getObjectSize(it.next().fieldType);
+        }
+        return size;
     }
 
     /**
