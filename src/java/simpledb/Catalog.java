@@ -23,16 +23,89 @@ public class Catalog {
      * Constructor.
      * Creates a new, empty catalog.
      */
-    private Vector<DbFile> catalog;
-    private Vector<String> names;
-    private Vector<String> pkeys;
 
-    public Catalog() {
-        // some code goes here
-        catalog = new Vector<>();
-        names = new Vector<>();
-        pkeys = new Vector<>();
+    private HashMap<String, HeapFile> catalog;
+    private HashMap<String, String> pkeys;
+
+    private Catalog(){
+        catalog = new HashMap<>();
+        pkeys = new HashMap<String, String>();
     }
+//    private Vector<DbFile> catalog;
+//    private Vector<String> names;
+//    private Vector<String> pkeys;
+//    private Vector<Table> tables;
+//
+//    public Catalog() {
+//        // some code goes here
+//        catalog = new Vector<>();
+//        names = new Vector<>();
+//        pkeys = new Vector<>();
+//        tables = new Vector<>();
+//    }
+//
+//    public class Table {
+//        private int id;
+//        private DbFile file;
+//        private String name;
+//        private String pkey;
+//
+//        public Table(DbFile file, String name, String pkey) {
+//            this.id = file.getId();
+//            this.file = file;
+//            this.name = name;
+//            this.pkey = pkey;
+//        }
+//
+//        public Table(DbFile file, String name) {
+//            this.id = file.getId();
+//            this.file = file;
+//            this.name = name;
+//            this.pkey = "";
+//        }
+//
+//        public int getId() {
+//            return id;
+//        }
+//
+//        public void replaceId(int id) {
+//            this.id = id;
+//        }
+//
+//        public DbFile getFile() {
+//            return file;
+//        }
+//
+//        public void replaceFile (DbFile file) {
+//            this.file = file;
+//        }
+//
+//        public String getName() {
+//            return name;
+//        }
+//
+//        public void setName(String name) {
+//            this.name = name;
+//        }
+//
+//        public String getPkey() {
+//            return pkey;
+//        }
+//
+//        public void setPkey(String pkey) {
+//            this.pkey = pkey;
+//        }
+//    }
+//
+//    public boolean nameInCatalog(String name){
+//        for (Table t:tables){
+//            if (t.getName() == name){
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 
     /**
      * Add a new table to the catalog.
@@ -46,9 +119,39 @@ public class Catalog {
     public void addTable(DbFile file, String name, String pkeyField) {
         // some code goes here
         file.getTupleDesc().fieldNameToIndex(pkeyField);
-        catalog.add(file);
-        names.add(name);
-        pkeys.add(pkeyField);
+//        catalog.add(file);
+//
+//        if (this.names.contains(name)) {
+//            names.removeElement(name);
+//            names.addElement(name);
+//        }
+//        names.add(name);
+//        pkeys.add(pkeyField);
+
+//        if (nameInCatalog(name)){
+//            for (Table t:tables) {
+//                if (t.getName() == name){
+//                    t.replaceId(file.getId());
+//                    t.replaceFile(file);
+//                    t.setPkey(pkeyField);
+//                }
+//            }
+//        } else {
+//            Table new_table = new Table(file, name, pkeyField);
+//            tables.addElement(new_table);
+//        }
+
+        if (name == null) {
+            throw new NullPointerException("Name cannot be null.");
+        }
+
+        if (catalog.containsKey(name)){
+            catalog.replace(name, (HeapFile) file);
+            pkeys.replace(name, pkeyField);
+        } else {
+            catalog.put(name, (HeapFile) file);
+            pkeys.put(name, pkeyField);
+        }
     }
 
     public void addTable(DbFile file, String name) {
@@ -72,7 +175,7 @@ public class Catalog {
      */
     public int getTableId(String name) throws NoSuchElementException {
         // some code goes here
-        return 0;
+        return catalog.get(name).getId();
     }
 
     /**
