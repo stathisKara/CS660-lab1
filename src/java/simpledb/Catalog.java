@@ -52,11 +52,11 @@ public class Catalog {
 
         if (catalog.containsKey(name)){
             idToName.remove(catalog.get(name).getId());
-            catalog.replace(name,file);
+            catalog.replace(name, file);
             pkeys.replace(name, pkeyField);
             idToName.put(file.getId(), name);
         } else {
-            catalog.put(name,  file);
+            catalog.put(name, file);
             pkeys.put(name, pkeyField);
             idToName.put(file.getId(), name);
         }

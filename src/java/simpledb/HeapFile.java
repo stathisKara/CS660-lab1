@@ -114,7 +114,126 @@ public class HeapFile implements DbFile {
     // see DbFile.java for javadocs
     public DbFileIterator iterator(TransactionId tid) {
         // some code goes here
-        return null;
+
+        /**
+         * create a new DbFile iterator and implement the methods of the DbFileIterator interface
+         */
+        DbFileIterator db_it = new DbFileIterator() {
+            /**
+             * we need to know which page we are on and which tuple we are on,
+             * and we want to store the page we are on for easy access.
+             */
+            private boolean isOpen = false;
+            private int page_position;
+            private int tuple_position;
+            HeapPage p;
+
+            @Override
+            /**
+             * The open() method is like initializing the iterator,
+             * initialize all the objects of the iterator.
+             * Throw exceptions if something goes wrong.
+             */
+            public void open() throws DbException, TransactionAbortedException {
+                try {
+                    page_position = 0;
+                    tuple_position = 0;
+                    p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position), Permissions.READ_ONLY);
+                    isOpen = true;
+                } catch (DbException e) {
+                    e.printStackTrace();
+                    throw new DbException("\nThere was a problem opening or accessing the database.");
+                } catch (TransactionAbortedException e) {
+                    e.printStackTrace();
+                    throw new TransactionAbortedException();
+                }
+            }
+
+            @Override
+            /**
+             * get the next tuple on the current page.
+             * If the iterator is not open, return false.
+             * If we are at the end of the page, check if there is another page.
+             * If there is, there is another tuple. If there is not another page,
+             * then there are no more tuples.
+             */
+            public boolean hasNext() throws DbException, TransactionAbortedException {
+                if (!isOpen) {
+                    return false;
+                }
+
+                if (tuple_position < p.tuples.length) {
+                    return  true;
+                } else if (page_position < pages.size()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            /**
+             * get the next tuple on the current page.
+             * If we are at the end of the page and there is another page, get the first
+             * tuple on the next page. If we are on the last page, throw a NoSuchElement
+             * exception.
+             */
+            public Tuple next() throws DbException, TransactionAbortedException, NoSuchElementException {
+                if (tuple_position < p.tuples.length) {
+                    // get the next tuple
+                    Tuple t = p.tuples[tuple_position];
+
+                    // increase the counter
+                    tuple_position++;
+                    return t;
+                } else if (page_position < pages.size()) {
+                    // go to the next page
+                    page_position++;
+                    tuple_position = 0;
+                    p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position), Permissions.READ_ONLY);
+
+                    // get the first tuple on the next page
+                    Tuple t =  p.tuples[tuple_position];
+
+                    // increase the counter
+                    tuple_position++;
+                    return t;
+                } else {
+                    // we are at the end of the table
+                    throw new NoSuchElementException("\nThere are no more tuples in the table.");
+                }
+            }
+
+            @Override
+            /**
+             * Reset the iterator (i.e. do the same thing as if you are opening it for the first time)
+             */
+            public void rewind() throws DbException, TransactionAbortedException {
+                if (!isOpen) {
+                    throw new DbException("Rewind is unsupported when an iterator is closed.");
+                }
+
+                try {
+                    page_position = 0;
+                    tuple_position = 0;
+                    p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position), Permissions.READ_ONLY);
+                } catch (DbException e) {
+                    e.printStackTrace();
+                    throw new DbException("\nRewind is unsupported.");
+                }
+            }
+
+            @Override
+            /**
+             * Close the iterator, i.e. set isOpen to "false" so that the methods
+             * of the iterator cannot run
+             */
+            public void close() {
+                isOpen = false;
+            }
+        };
+
+        return db_it;
     }
 
 }
