@@ -167,6 +167,7 @@ public class TupleDesc implements Serializable {
      */
     public int fieldNameToIndex(String name) throws NoSuchElementException {
         // some code goes here
+
         if (name == null) {
             throw new NoSuchElementException();
         }

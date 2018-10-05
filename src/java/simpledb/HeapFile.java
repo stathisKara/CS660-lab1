@@ -19,6 +19,7 @@ public class HeapFile implements DbFile {
     private TupleDesc tupleDesc;
     private int uniqueId;
     private int numPages;
+    private Vector<PageId> pages;
 
     /**
      * Constructs a heap file backed by the specified file.
