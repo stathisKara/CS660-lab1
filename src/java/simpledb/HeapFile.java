@@ -138,7 +138,7 @@ public class HeapFile implements DbFile {
                 try {
                     page_position = 0;
                     tuple_position = 0;
-                    p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position), Permissions.READ_ONLY);
+                    p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position).getId(), Permissions.READ_ONLY);
                     isOpen = true;
                 } catch (DbException e) {
                     e.printStackTrace();
@@ -216,7 +216,7 @@ public class HeapFile implements DbFile {
                 try {
                     page_position = 0;
                     tuple_position = 0;
-                    p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position), Permissions.READ_ONLY);
+                    p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position).getId(), Permissions.READ_ONLY);
                 } catch (DbException e) {
                     e.printStackTrace();
                     throw new DbException("\nRewind is unsupported.");
