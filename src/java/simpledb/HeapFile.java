@@ -19,7 +19,7 @@ public class HeapFile implements DbFile {
     private TupleDesc tupleDesc;
     private int uniqueId;
     private int numPages;
-    private Vector<PageId> pages;
+    private Vector<Page> pages;
 
     /**
      * Constructs a heap file backed by the specified file.
@@ -190,7 +190,7 @@ public class HeapFile implements DbFile {
                     // go to the next page
                     page_position++;
                     tuple_position = 0;
-                    p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position), Permissions.READ_ONLY);
+                    p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position).getId(), Permissions.READ_ONLY);
 
                     // get the first tuple on the next page
                     Tuple t =  p.tuples[tuple_position];
