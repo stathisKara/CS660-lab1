@@ -26,86 +26,13 @@ public class Catalog {
 
     private HashMap<String, HeapFile> catalog;
     private HashMap<String, String> pkeys;
+    private HashMap<Integer, String> idToName;
 
-    private Catalog(){
+    public Catalog(){
         catalog = new HashMap<>();
-        pkeys = new HashMap<String, String>();
+        pkeys = new HashMap<>();
+        idToName = new HashMap<>();
     }
-//    private Vector<DbFile> catalog;
-//    private Vector<String> names;
-//    private Vector<String> pkeys;
-//    private Vector<Table> tables;
-//
-//    public Catalog() {
-//        // some code goes here
-//        catalog = new Vector<>();
-//        names = new Vector<>();
-//        pkeys = new Vector<>();
-//        tables = new Vector<>();
-//    }
-//
-//    public class Table {
-//        private int id;
-//        private DbFile file;
-//        private String name;
-//        private String pkey;
-//
-//        public Table(DbFile file, String name, String pkey) {
-//            this.id = file.getId();
-//            this.file = file;
-//            this.name = name;
-//            this.pkey = pkey;
-//        }
-//
-//        public Table(DbFile file, String name) {
-//            this.id = file.getId();
-//            this.file = file;
-//            this.name = name;
-//            this.pkey = "";
-//        }
-//
-//        public int getId() {
-//            return id;
-//        }
-//
-//        public void replaceId(int id) {
-//            this.id = id;
-//        }
-//
-//        public DbFile getFile() {
-//            return file;
-//        }
-//
-//        public void replaceFile (DbFile file) {
-//            this.file = file;
-//        }
-//
-//        public String getName() {
-//            return name;
-//        }
-//
-//        public void setName(String name) {
-//            this.name = name;
-//        }
-//
-//        public String getPkey() {
-//            return pkey;
-//        }
-//
-//        public void setPkey(String pkey) {
-//            this.pkey = pkey;
-//        }
-//    }
-//
-//    public boolean nameInCatalog(String name){
-//        for (Table t:tables){
-//            if (t.getName() == name){
-//                return true;
-//            }
-//        }
-//
-//        return false;
-//    }
 
     /**
      * Add a new table to the catalog.
@@ -118,39 +45,20 @@ public class Catalog {
      */
     public void addTable(DbFile file, String name, String pkeyField) {
         // some code goes here
-        file.getTupleDesc().fieldNameToIndex(pkeyField);
-//        catalog.add(file);
-//
-//        if (this.names.contains(name)) {
-//            names.removeElement(name);
-//            names.addElement(name);
-//        }
-//        names.add(name);
-//        pkeys.add(pkeyField);
-
-//        if (nameInCatalog(name)){
-//            for (Table t:tables) {
-//                if (t.getName() == name){
-//                    t.replaceId(file.getId());
-//                    t.replaceFile(file);
-//                    t.setPkey(pkeyField);
-//                }
-//            }
-//        } else {
-//            Table new_table = new Table(file, name, pkeyField);
-//            tables.addElement(new_table);
-//        }
 
         if (name == null) {
             throw new NullPointerException("Name cannot be null.");
         }
 
         if (catalog.containsKey(name)){
+            idToName.remove(catalog.get(name).getId());
             catalog.replace(name, (HeapFile) file);
             pkeys.replace(name, pkeyField);
+            idToName.put(file.getId(), name);
         } else {
             catalog.put(name, (HeapFile) file);
             pkeys.put(name, pkeyField);
+            idToName.put(file.getId(), name);
         }
     }
 
@@ -175,6 +83,11 @@ public class Catalog {
      */
     public int getTableId(String name) throws NoSuchElementException {
         // some code goes here
+
+        if (!catalog.containsKey(name)) {
+            throw new NoSuchElementException("A Table with this name does not exist in the Catalog.");
+        }
+
         return catalog.get(name).getId();
     }
 
@@ -186,7 +99,12 @@ public class Catalog {
      */
     public TupleDesc getTupleDesc(int tableid) throws NoSuchElementException {
         // some code goes here
-        return null;
+
+        if (!idToName.containsKey(tableid)){
+            throw new NoSuchElementException("A Table with this ID does ot exist in the Catalog.");
+        }
+
+        return catalog.get(idToName.get(tableid)).getTupleDesc();
     }
 
     /**
@@ -197,27 +115,36 @@ public class Catalog {
      */
     public DbFile getDatabaseFile(int tableid) throws NoSuchElementException {
         // some code goes here
-        return null;
+
+        if (!idToName.containsKey(tableid)){
+            throw new NoSuchElementException("A Table with this ID does not exist in the Catalog.");
+        }
+
+        return catalog.get(idToName.get(tableid));
     }
 
     public String getPrimaryKey(int tableid) {
         // some code goes here
-        return null;
+        return pkeys.get(idToName.get(tableid));
     }
 
     public Iterator<Integer> tableIdIterator() {
         // some code goes here
-        return null;
+        Set idSet = idToName.keySet();
+        return idSet.iterator();
     }
 
     public String getTableName(int id) {
         // some code goes here
-        return null;
+        return idToName.get(id);
     }
     
     /** Delete all tables from the catalog */
     public void clear() {
         // some code goes here
+        catalog.clear();
+        idToName.clear();
+        pkeys.clear();
     }
     
     /**
