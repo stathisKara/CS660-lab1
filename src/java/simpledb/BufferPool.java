@@ -46,7 +46,6 @@ public class BufferPool {
         this.maxPages = numPages;
         this.pages = new HashMap<>();
         this.currentPages = 0;
-
     }
 
     public static int getPageSize() {
@@ -81,10 +80,11 @@ public class BufferPool {
     public Page getPage(TransactionId tid, PageId pid, Permissions perm)
             throws TransactionAbortedException, DbException {
         // some code goes here
-        pid.getTableId();
-        Page page = Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid);
-        if (pages.get(pid.getTableId()) == null) {
-            pages.put(pid.getTableId(), page);
+        Page page = Database.getCatalog().getDatabaseFile(pid.hashCode()).readPage(pid);
+        if (this.pages.get(pid.hashCode()) == null) {
+            if (this.currentPages == this.maxPages)
+                throw new TransactionAbortedException();
+            this.pages.put(pid.hashCode(), page);
             currentPages++;
         }
         return page;
