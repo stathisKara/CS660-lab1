@@ -300,7 +300,7 @@ public class HeapPage implements Page {
 
             if ((header[i / 8] & mask) != 0)
                 used_bytes++;
-            System.out.println(used_bytes);
+//            System.out.println(used_bytes);
         }
         return numSlots - used_bytes;
     }
@@ -331,7 +331,40 @@ public class HeapPage implements Page {
      */
     public Iterator<Tuple> iterator() {
         // some code goes here
-        return null;
+
+        Iterator<Tuple> it = new Iterator<Tuple>() {
+            private int position = 0;
+
+            @Override
+            public boolean hasNext() {
+                return (position < (tuples.length - getNumEmptySlots()));
+            }
+
+            @Override
+            public Tuple next() {
+                if (this.hasNext()) {
+//                    System.out.println("This is the first tuple: " + tuples[0]);
+                    //System.out.println("This is the number of empty slots " + getNumEmptySlots());
+                    if (isSlotUsed(position)) {
+                        Tuple t = tuples[position];
+                        position++;
+                        return t;
+                    } else {
+                        position++;
+                        return null;
+                    }
+                } else {
+                    return null;
+                }
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Removing a tuple is an unsupported operation.");
+            }
+        };
+
+        return it;
     }
 
 }

@@ -1,3 +1,7 @@
+/**
+ * Iterates over the fields in a tuple
+ */
+
 package simpledb;
 
 import java.util.Iterator;

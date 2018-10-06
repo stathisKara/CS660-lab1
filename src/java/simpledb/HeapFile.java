@@ -35,6 +35,7 @@ public class HeapFile implements DbFile {
         this.tupleDesc = td;
         this.uniqueId = f.getAbsoluteFile().hashCode();
         this.numPages = 0;
+        this.pages = new Vector<>();
     }
 
     /**
@@ -47,10 +48,9 @@ public class HeapFile implements DbFile {
         return this.fileDesc;
     }
 
-    public Vector<Page> getPages() {
+    public Vector<Page> getPages(){
         return this.pages;
     }
-
     /**
      * Returns an ID uniquely identifying this HeapFile. Implementation note:
      * you will need to generate this tableid somewhere ensure that each
@@ -84,7 +84,7 @@ public class HeapFile implements DbFile {
             RandomAccessFile file = new RandomAccessFile(fileDesc, "r");
             try {
                 //file.seek(pid.pageNumber() * pg_size);
-                System.out.println("offset is " + pg_size);
+//                System.out.println("offset is " + pg_size);
                 byte data[] = new byte[pg_size];
                 file.read(data, pid.pageNumber() * pg_size, pg_size);
                 file.close();
@@ -147,14 +147,12 @@ public class HeapFile implements DbFile {
          * create a new DbFile iterator and implement the methods of the DbFileIterator interface
          */
         DbFileIterator db_it = new DbFileIterator() {
-            /**
-             * we need to know which page we are on and which tuple we are on,
-             * and we want to store the page we are on for easy access.
-             */
-            private boolean isOpen = false;
-            private int page_position;
-            private int tuple_position;
-            HeapPage p;
+
+            // parameters of the iterator
+            private int currentPageNumber = 0;
+            private Page currentPage = null;
+            private PageId currentPageId = null;
+            private Iterator<Tuple> tuples;
 
             @Override
             /**
@@ -163,18 +161,10 @@ public class HeapFile implements DbFile {
              * Throw exceptions if something goes wrong.
              */
             public void open() throws DbException, TransactionAbortedException {
-                try {
-                    page_position = 0;
-                    tuple_position = 0;
-                    p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position).getId(), Permissions.READ_ONLY);
-                    isOpen = true;
-                } catch (DbException e) {
-                    e.printStackTrace();
-                    throw new DbException("\nThere was a problem opening or accessing the database.");
-                } catch (TransactionAbortedException e) {
-                    e.printStackTrace();
-                    throw new TransactionAbortedException();
-                }
+                int tableId = HeapFile.this.getId();
+                this.currentPageId = new HeapPageId(tableId, this.currentPageNumber);
+                this.currentPage = Database.getBufferPool().getPage(tid, this.currentPageId, null);
+                this.tuples = ((HeapPage) this.currentPage).iterator();
             }
 
             @Override
@@ -186,17 +176,22 @@ public class HeapFile implements DbFile {
              * then there are no more tuples.
              */
             public boolean hasNext() throws DbException, TransactionAbortedException {
-                if (!isOpen) {
-                    return false;
+                if (this.tuples != null) {
+                    // if tuple null, iterator closed
+                    if (this.tuples.hasNext()) {
+                        return true;
+                    } else {
+                        if (this.currentPageNumber < HeapFile.this.numPages - 1) {
+                            int tableId = HeapFile.this.getId();
+                            this.currentPageNumber++;
+                            this.currentPageId = new HeapPageId(tableId, this.currentPageNumber);
+                            this.currentPage = Database.getBufferPool().getPage(tid, this.currentPageId, null);
+                            this.tuples = ((HeapPage) this.currentPage).iterator();
+                            return this.hasNext();
+                        }
+                    }
                 }
-
-                if (tuple_position < p.tuples.length) {
-                    return true;
-                } else if (page_position < pages.size()) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return false;
             }
 
             @Override
@@ -207,57 +202,35 @@ public class HeapFile implements DbFile {
              * exception.
              */
             public Tuple next() throws DbException, TransactionAbortedException, NoSuchElementException {
-                if (tuple_position < p.tuples.length) {
-                    // get the next tuple
-                    Tuple t = p.tuples[tuple_position];
-
-                    // increase the counter
-                    tuple_position++;
-                    return t;
-                } else if (page_position < pages.size()) {
-                    // go to the next page
-                    page_position++;
-                    tuple_position = 0;
-                    p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position).getId(), Permissions.READ_ONLY);
-
-                    // get the first tuple on the next page
-                    Tuple t = p.tuples[tuple_position];
-
-                    // increase the counter
-                    tuple_position++;
-                    return t;
+                if (this.tuples != null) {
+                    return this.tuples.next();
                 } else {
-                    // we are at the end of the table
-                    throw new NoSuchElementException("\nThere are no more tuples in the table.");
+                    throw new NoSuchElementException();
                 }
             }
 
             @Override
             /**
-             * Reset the iterator (i.e. do the same thing as if you are opening it for the first time)
+             * just reset everything, like opening again
              */
             public void rewind() throws DbException, TransactionAbortedException {
-                if (!isOpen) {
-                    throw new DbException("Rewind is unsupported when an iterator is closed.");
-                }
-
-                try {
-                    page_position = 0;
-                    tuple_position = 0;
-                    p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position).getId(), Permissions.READ_ONLY);
-                } catch (DbException e) {
-                    e.printStackTrace();
-                    throw new DbException("\nRewind is unsupported.");
-                }
+                int tableId = HeapFile.this.getId();
+                this.currentPageNumber = 0;
+                this.currentPageId = new HeapPageId(tableId, this.currentPageNumber);
+                this.currentPage = Database.getBufferPool().getPage(tid, this.currentPageId, null);
+                this.tuples = ((HeapPage) this.currentPage).iterator();
             }
 
             @Override
             /**
-             * Close the iterator, i.e. set isOpen to "false" so that the methods
-             * of the iterator cannot run
+             * make everything invalid,
+             * the opposite of open()
              */
             public void close() {
-                isOpen = false;
+                this.currentPageNumber = 0;
+                this.currentPageId = null;
+                this.currentPage = null;
+                this.tuples = null;
             }
         };
 
