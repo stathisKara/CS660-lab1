@@ -295,12 +295,9 @@ public class HeapPage implements Page {
         int used_bytes = 0;
         for (int i = 0; i < getHeaderSize(); i++) {
             byte mask = (byte) (1 << (i % 8));
-//            System.out.println("mask is " + String.format("%8s", Integer.toBinaryString(mask & 0xFF)).replace(' ', '0') +
-//                " and result is " + String.format("%8s", Integer.toBinaryString(header[i] & 0xFF)).replace(' ', '0'));
 
             if ((header[i / 8] & mask) != 0)
                 used_bytes++;
-//            System.out.println(used_bytes);
         }
         return numSlots - used_bytes;
     }
@@ -312,8 +309,6 @@ public class HeapPage implements Page {
         // some code goes here
         byte mask = (byte) (1 << (i % 8));
         int result = (header[i / 8] & mask);
-//        System.out.println("mask is " + String.format("%8s", Integer.toBinaryString(mask & 0xFF)).replace(' ', '0') +
-//                " and result is " + String.format("%8s", Integer.toBinaryString(result & 0xFF)).replace(' ', '0'));
         return result != 0;
     }
 
@@ -343,8 +338,6 @@ public class HeapPage implements Page {
             @Override
             public Tuple next() {
                 if (this.hasNext()) {
-//                    System.out.println("This is the first tuple: " + tuples[0]);
-                    //System.out.println("This is the number of empty slots " + getNumEmptySlots());
                     if (isSlotUsed(position)) {
                         Tuple t = tuples[position];
                         position++;

@@ -20,9 +20,6 @@ public class HeapFile implements DbFile {
     private TupleDesc tupleDesc;
     private int uniqueId;
 
-    private int numPages;
-    private Vector<Page> pages;
-
     /**
      * Constructs a heap file backed by the specified file.
      *
@@ -34,8 +31,6 @@ public class HeapFile implements DbFile {
         this.fileDesc = f;
         this.tupleDesc = td;
         this.uniqueId = f.getAbsoluteFile().hashCode();
-        this.numPages = 0;
-        this.pages = new Vector<>();
     }
 
     /**
@@ -46,10 +41,6 @@ public class HeapFile implements DbFile {
     public File getFile() {
         // some code goes here
         return this.fileDesc;
-    }
-
-    public Vector<Page> getPages(){
-        return this.pages;
     }
     /**
      * Returns an ID uniquely identifying this HeapFile. Implementation note:
@@ -83,17 +74,11 @@ public class HeapFile implements DbFile {
         try {
             RandomAccessFile file = new RandomAccessFile(fileDesc, "r");
             try {
-                //file.seek(pid.pageNumber() * pg_size);
-//                System.out.println("offset is " + pg_size);
                 byte data[] = new byte[pg_size];
                 file.read(data, pid.pageNumber() * pg_size, pg_size);
                 file.close();
                 try {
-                    numPages++;
-                    HeapPage page = new HeapPage((HeapPageId) pid, data);
-//                    pages.add(page);
-                    //                  System.out.println(numPages);
-                    return page;
+                    return new HeapPage((HeapPageId) pid, data);
                 } catch (IOException e) {
                     return null;
                 }
@@ -181,7 +166,7 @@ public class HeapFile implements DbFile {
                     if (this.tuples.hasNext()) {
                         return true;
                     } else {
-                        if (this.currentPageNumber < HeapFile.this.numPages - 1) {
+                        if (this.currentPageNumber < HeapFile.this.numPages() - 1) {
                             int tableId = HeapFile.this.getId();
                             this.currentPageNumber++;
                             this.currentPageId = new HeapPageId(tableId, this.currentPageNumber);

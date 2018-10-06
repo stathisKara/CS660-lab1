@@ -1,3 +1,7 @@
+/**
+ * Iterates over the fields in a TupleDesc.
+ * Called by TupleDesc.
+ */
 package simpledb;
 
 import java.util.Iterator;

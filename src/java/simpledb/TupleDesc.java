@@ -264,8 +264,6 @@ public class TupleDesc implements Serializable {
         // If you want to use TupleDesc as keys for HashMap, implement this so
         // that equal objects have equals hashCode() results
         return Arrays.deepHashCode(this.items);
-
-//        throw new UnsupportedOperationException("unimplemented");
     }
 
     /**
@@ -277,7 +275,6 @@ public class TupleDesc implements Serializable {
      */
     public String toString() {
         // some code goes here
-//        String result = "" ;
         StringBuilder result = new StringBuilder();
         int len = this.items.length;
         for (int i = 0; i < len; i++) {
