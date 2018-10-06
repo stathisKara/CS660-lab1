@@ -295,8 +295,8 @@ public class HeapPage implements Page {
         int used_bytes = 0;
         for (int i = 0; i < getHeaderSize(); i++) {
             byte mask = (byte) (1 << (i % 8));
-            System.out.println("mask is " + String.format("%8s", Integer.toBinaryString(mask & 0xFF)).replace(' ', '0') +
-                " and result is " + String.format("%8s", Integer.toBinaryString(header[i] & 0xFF)).replace(' ', '0'));
+//            System.out.println("mask is " + String.format("%8s", Integer.toBinaryString(mask & 0xFF)).replace(' ', '0') +
+//                " and result is " + String.format("%8s", Integer.toBinaryString(header[i] & 0xFF)).replace(' ', '0'));
 
             if ((header[i / 8] & mask) != 0)
                 used_bytes++;

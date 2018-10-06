@@ -47,9 +47,10 @@ public class HeapFile implements DbFile {
         return this.fileDesc;
     }
 
-    public Vector<Page> getPages(){
+    public Vector<Page> getPages() {
         return this.pages;
     }
+
     /**
      * Returns an ID uniquely identifying this HeapFile. Implementation note:
      * you will need to generate this tableid somewhere ensure that each
@@ -90,8 +91,8 @@ public class HeapFile implements DbFile {
                 try {
                     numPages++;
                     HeapPage page = new HeapPage((HeapPageId) pid, data);
-                    pages.add(page);
-                    System.out.println(numPages);
+//                    pages.add(page);
+                    //                  System.out.println(numPages);
                     return page;
                 } catch (IOException e) {
                     return null;
@@ -116,7 +117,10 @@ public class HeapFile implements DbFile {
      */
     public int numPages() {
         // some code goes here
-        return this.numPages;
+        if (this.fileDesc.length() % BufferPool.getPageSize() == 0)
+            return (int) this.fileDesc.length() / BufferPool.getPageSize();
+        else
+            return (int) this.fileDesc.length() / BufferPool.getPageSize() + 1;
     }
 
     // see DbFile.java for javadocs

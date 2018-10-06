@@ -15,8 +15,9 @@ public class SeqScan implements DbIterator {
     private int tableid;
     private HeapFile hf;
     private TransactionId tid;
-    String tableAlias;
-    String tableName;
+    private String tableAlias;
+    private String tableName;
+    private DbFileIterator db_it;
 
     /**
      * Creates a sequential scan over the specified table as a part of the
@@ -38,6 +39,7 @@ public class SeqScan implements DbIterator {
         this.tableAlias = tableAlias;
         this.hf = (HeapFile) Database.getCatalog().getDatabaseFile(tableid);
         this.tableName = Database.getCatalog().getTableName(tableid);
+        this.db_it = hf.iterator(null);
     }
 
     /**
@@ -71,6 +73,7 @@ public class SeqScan implements DbIterator {
         // some code goes here
         this.tableid = tableid;
         this.tableAlias = tableAlias;
+        this.db_it = hf.iterator(null);
     }
 
     public SeqScan(TransactionId tid, int tableid) {
@@ -79,6 +82,7 @@ public class SeqScan implements DbIterator {
 
     public void open() throws DbException, TransactionAbortedException {
         // some code goes here
+        this.db_it.open();
     }
 
     /**
@@ -93,26 +97,38 @@ public class SeqScan implements DbIterator {
      */
     public TupleDesc getTupleDesc() {
         TupleDesc td = Database.getCatalog().getTupleDesc(this.tableid);
-        return null;
+        Type[] types = new Type[td.getItems().length];
+        String[] fields = new String[td.getItems().length];
+        for (int i =0; i <fields.length; i++){
+            fields[i] = this.tableAlias.concat(td.getFieldName(i));
+            types[i] = td.getFieldType(i);
+        }
+        return new TupleDesc(types, fields);
     }
 
     public boolean hasNext() throws TransactionAbortedException, DbException {
         // some code goes here
-        return false;
+        if (this.db_it == null)
+            return false;
+        if (!this.db_it.hasNext())
+            return false;
+        return true;
     }
 
     public Tuple next() throws NoSuchElementException,
             TransactionAbortedException, DbException {
         // some code goes here
-        return null;
+        return this.db_it.next();
     }
 
     public void close() {
         // some code goes here
+        this.db_it.close();
     }
 
     public void rewind() throws DbException, NoSuchElementException,
             TransactionAbortedException {
         // some code goes here
+        this.db_it.rewind();
     }
 }
