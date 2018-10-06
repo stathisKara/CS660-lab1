@@ -82,20 +82,22 @@ public class HeapFile implements DbFile {
                 //file.seek(pid.pageNumber() * pg_size);
                 System.out.println("offset is " + pg_size);
                 byte data[] = new byte[pg_size];
-                file.read(data, pid.pageNumber()*pg_size , pg_size);
+                file.read(data, pid.pageNumber() * pg_size, pg_size);
                 file.close();
                 try {
-                    return new HeapPage((HeapPageId) pid, data);
-                }
-                catch (IOException e) {
+                    numPages++;
+                    HeapPage page = new HeapPage((HeapPageId) pid, data);
+                    System.out.println(numPages);
+                    numPages++;
+                    System.out.println(numPages);
+                    return page;
+                } catch (IOException e) {
                     return null;
                 }
-            }
-            catch(IOException e){
+            } catch (IOException e) {
                 System.out.println("Reading file failed");
             }
-        }
-        catch (FileNotFoundException e ){
+        } catch (FileNotFoundException e) {
             System.out.println("File does not exist");
         }
         return null;
@@ -183,7 +185,7 @@ public class HeapFile implements DbFile {
                 }
 
                 if (tuple_position < p.tuples.length) {
-                    return  true;
+                    return true;
                 } else if (page_position < pages.size()) {
                     return true;
                 } else {
@@ -213,7 +215,7 @@ public class HeapFile implements DbFile {
                     p = (HeapPage) Database.getBufferPool().getPage(tid, pages.get(page_position).getId(), Permissions.READ_ONLY);
 
                     // get the first tuple on the next page
-                    Tuple t =  p.tuples[tuple_position];
+                    Tuple t = p.tuples[tuple_position];
 
                     // increase the counter
                     tuple_position++;

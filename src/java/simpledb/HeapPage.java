@@ -48,7 +48,7 @@ public class HeapPage implements Page {
         header = new byte[getHeaderSize()];
         for (int i = 0; i < header.length; i++) {
             header[i] = dis.readByte();
-            System.out.println(header[i]);
+//            System.out.println(header[i]);
         }
 
         tuples = new Tuple[numSlots];
@@ -56,7 +56,7 @@ public class HeapPage implements Page {
             // allocate and read the actual records of this page
             for (int i = 0; i < tuples.length; i++) {
                 tuples[i] = readNextTuple(dis, i);
-                System.out.println(tuples[i]);
+//                System.out.println(tuples[i]);
 
             }
         } catch (NoSuchElementException e) {
@@ -294,10 +294,13 @@ public class HeapPage implements Page {
         // some code goes here
         int used_bytes = 0;
         for (int i = 0; i < getHeaderSize(); i++) {
-            byte mask = (byte) (1 << (7 - i % 8));
+            byte mask = (byte) (1 << (i % 8));
+            System.out.println("mask is " + String.format("%8s", Integer.toBinaryString(mask & 0xFF)).replace(' ', '0') +
+                " and result is " + String.format("%8s", Integer.toBinaryString(header[i] & 0xFF)).replace(' ', '0'));
+
             if ((header[i / 8] & mask) != 0)
                 used_bytes++;
-            
+            System.out.println(used_bytes);
         }
         return numSlots - used_bytes;
     }
@@ -307,10 +310,10 @@ public class HeapPage implements Page {
      */
     public boolean isSlotUsed(int i) {
         // some code goes here
-        byte mask = (byte) (1 << (7 - i % 8));
+        byte mask = (byte) (1 << (i % 8));
         int result = (header[i / 8] & mask);
-        System.out.println("mask is " + String.format("%8s", Integer.toBinaryString(mask & 0xFF)).replace(' ', '0') +
-                " and result is " + String.format("%8s", Integer.toBinaryString(result & 0xFF)).replace(' ', '0'));
+//        System.out.println("mask is " + String.format("%8s", Integer.toBinaryString(mask & 0xFF)).replace(' ', '0') +
+//                " and result is " + String.format("%8s", Integer.toBinaryString(result & 0xFF)).replace(' ', '0'));
         return result != 0;
     }
 
