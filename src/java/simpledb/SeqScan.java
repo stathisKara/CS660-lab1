@@ -47,7 +47,7 @@ public class SeqScan implements DbIterator {
      * be the actual name of the table in the catalog of the database
      */
     public String getTableName() {
-        return tableName;
+        return this.tableName;
     }
 
     /**
@@ -110,7 +110,7 @@ public class SeqScan implements DbIterator {
         // some code goes here
         if (this.db_it == null)
             return false;
-        if (!this.db_it.hasNext())
+        if(!this.db_it.hasNext())
             return false;
         return true;
     }
