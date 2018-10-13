@@ -4,6 +4,7 @@ import java.io.*;
 
 import java.util.HashMap;
 
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -180,7 +181,9 @@ public class BufferPool {
      */
     public synchronized void flushAllPages() throws IOException {
         // some code goes here
-
+       for (PageId pid : pages.keySet()){
+           flushPage(pid);
+       }
     }
 
     /** Remove the specific page id from the buffer pool.
@@ -201,6 +204,7 @@ public class BufferPool {
      */
     private synchronized  void flushPage(PageId pid) throws IOException {
         // some code goes here
+        pages.get(pid).markDirty(false, new TransactionId());
     }
 
     /** Write all pages of the specified transaction to disk.
