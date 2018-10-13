@@ -15,7 +15,7 @@ public class SeqScan implements DbIterator {
     private TransactionId tid;
     private TupleDesc myTd;
     private transient DbFileIterator it;
-    //    private transient int tableid;
+//    private transient int tableid;
     private String tablename;
     private String alias;
 

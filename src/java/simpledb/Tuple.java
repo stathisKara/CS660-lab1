@@ -12,133 +12,105 @@ import java.util.Iterator;
 public class Tuple implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private TupleDesc tupleDesc;
-    private RecordId recordId;
+
+    private transient RecordId rid; // source on disk -- may be null
     private Field fields[];
+    private transient TupleDesc td;
 
     /**
      * Create a new tuple with the specified schema (type).
      *
-     * @param td the schema of this tuple. It must be a valid TupleDesc
-     *           instance with at least one field.
+     * @param td
+     *            the schema of this tuple. It must be a valid TupleDesc
+     *            instance with at least one field.
      */
     public Tuple(TupleDesc td) {
-        // some code goes here
-        if (td == null) {
-            System.out.println("Tuple Descriptor cannot be NULL\n");
-            return;
-        }
-        if (td.numFields() <= 0) {
-            System.out.println("Tuple Descriptor needs to have at least 1 type\n");
-            return;
-        }
-        this.tupleDesc = td;
-        this.fields = new Field[tupleDesc.numFields()];
+        fields = new Field[td.numFields()];
+        this.td = td;
     }
-
 
     /**
      * @return The TupleDesc representing the schema of this tuple.
      */
     public TupleDesc getTupleDesc() {
-        // some code goes here
-        return this.tupleDesc;
+        return td;
     }
 
     /**
      * @return The RecordId representing the location of this tuple on disk. May
-     * be null.
+     *         be null.
      */
     public RecordId getRecordId() {
-        // some code goes here
-        return this.recordId;
+        return rid;
     }
 
     /**
      * Set the RecordId information for this tuple.
      *
-     * @param rid the new RecordId for this tuple.
+     * @param rid
+     *            the new RecordId for this tuple.
      */
     public void setRecordId(RecordId rid) {
-        // some code goes here
-        this.recordId = rid;
+        this.rid = rid;
     }
 
     /**
      * Change the value of the ith field of this tuple.
      *
-     * @param i index of the field to change. It must be a valid index.
-     * @param f new value for the field.
+     * @param i
+     *            index of the field to change. It must be a valid index.
+     * @param f
+     *            new value for the field.
      */
     public void setField(int i, Field f) {
-        // some code goes here
-        if (f == null)
-            return;
-        if (i < 0 || i > tupleDesc.numFields()) {
-            System.out.println("Index out of bounds (i = " + i + ")\n");
-            return;
+        if (f.getType() != td.getFieldType(i)) {
+            throw new RuntimeException("Invalid field type in Tuple.setField()");
         }
-        if (this.fields[i] != null) {
-
-            if (!f.getType().equals(this.fields[i].getType())) {
-                System.out.println("Fields types don't match\n");
-                return;
-            }
-        }
-        this.fields[i] = f;
+        fields[i] = f;
     }
 
     /**
-     * @param i field index to return. Must be a valid index.
      * @return the value of the ith field, or null if it has not been set.
+     *
+     * @param i
+     *            field index to return. Must be a valid index.
      */
     public Field getField(int i) {
-        // some code goes here
-        if (i < 0 || i > tupleDesc.numFields()) {
-            System.out.println("Index out of bounds (i = " + i + ")\n");
-            return null;
-        }
-        return this.fields[i];
+        return fields[i];
     }
 
     /**
      * Returns the contents of this Tuple as a string. Note that to pass the
      * system tests, the format needs to be as follows:
-     * <p>
+     *
      * column1\tcolumn2\tcolumn3\t...\tcolumnN
-     * <p>
+     *
      * where \t is any whitespace (except a newline)
      */
     public String toString() {
-        // some code goes here
-        if (fields.length <= 0)
-            throw new UnsupportedOperationException("No values in this tuple");
-        StringBuilder result = new StringBuilder();
-        for (Field field : this.fields) {
-            result.append(field.toString());
-            result.append("\t");
+        String out = "";
+        for (int i = 0; i < fields.length; i++) {
+            if (out.length() > 0)
+                out += "\t";
+            out += fields[i];
         }
-        return result.toString();
+        return out;
     }
 
     /**
-     * @return An iterator which iterates over all the fields of this tuple
-     */
-    public Iterator<Field> fields() {
-        // some code goes here
-        return new FieldsIterator(this);
+     * @return
+     *        An iterator which iterates over all the fields of this tuple
+     * */
+    public Iterator<Field> fields()
+    {
+        return Arrays.asList(fields).iterator();
     }
 
     /**
      * reset the TupleDesc of thi tuple
-     */
-    public void resetTupleDesc(TupleDesc td) {
-        // some code goes here
-        this.tupleDesc = td;
-        this.fields = new Field[tupleDesc.numFields()];
-    }
-
-    public Field[] getAllFields() {
-        return this.fields;
+     * */
+    public void resetTupleDesc(TupleDesc td)
+    {
+        this.td = td;
     }
 }

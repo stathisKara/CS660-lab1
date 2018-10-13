@@ -20,15 +20,21 @@ public class SystemTestUtil {
 
     /** @param columnSpecification Mapping between column index and value. */
     public static HeapFile createRandomHeapFile(
-            int columns, int rows, Map<Integer, Integer> columnSpecification,
-            ArrayList<ArrayList<Integer>> tuples)
+            int columns,
+            int rows,
+            Map<Integer, Integer> columnSpecification,
+            ArrayList<ArrayList<Integer>> tuples
+    )
             throws IOException, DbException, TransactionAbortedException {
         return createRandomHeapFile(columns, rows, MAX_RAND_VALUE, columnSpecification, tuples);
     }
 
     /** @param columnSpecification Mapping between column index and value. */
     public static HeapFile createRandomHeapFile(
-            int columns, int rows, int maxValue, Map<Integer, Integer> columnSpecification,
+            int columns,
+            int rows,
+            int maxValue,
+            Map<Integer, Integer> columnSpecification,
             ArrayList<ArrayList<Integer>> tuples)
             throws IOException, DbException, TransactionAbortedException {
         File temp = createRandomHeapFileUnopened(columns, rows, maxValue,

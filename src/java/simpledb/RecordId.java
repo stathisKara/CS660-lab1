@@ -10,20 +10,19 @@ public class RecordId implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private final PageId pid;
+    private final int tupleno;
+
     /**
      * Creates a new RecordId referring to the specified PageId and tuple
      * number.
-     *
+     * 
      * @param pid
-     * the pageid of the page on which the tuple resides
+     *            the pageid of the page on which the tuple resides
      * @param tupleno
-     * the tuple number within the page.
+     *            the tuple number within the page.
      */
-    PageId pid;
-    int tupleno;
-
     public RecordId(PageId pid, int tupleno) {
-        // some code goes here
         this.pid = pid;
         this.tupleno = tupleno;
     }
@@ -32,7 +31,6 @@ public class RecordId implements Serializable {
      * @return the tuple number this RecordId references.
      */
     public int tupleno() {
-        // some code goes here
         return tupleno;
     }
 
@@ -40,40 +38,33 @@ public class RecordId implements Serializable {
      * @return the page id this RecordId references.
      */
     public PageId getPageId() {
-        // some code goes here
         return pid;
     }
 
     /**
      * Two RecordId objects are considered equal if they represent the same
      * tuple.
-     *
+     * 
      * @return True if this and o represent the same tuple
      */
     @Override
     public boolean equals(Object o) {
-        // some code goes here
-        if (o == null) return false;
-        if (o == this) return true;
-        if (!(o instanceof RecordId)) return false;
-        RecordId tempTupD = (RecordId) o;
-        if (!tempTupD.pid.equals(this.pid))
-            return false;
-        if (!(tempTupD.tupleno == this.tupleno))
-            return false;
-        return true;
+        if (o != null && o instanceof RecordId) {
+            RecordId rid = (RecordId) o;
+            return pid.equals(rid.pid) && tupleno == rid.tupleno;
+        }
+        return false;
     }
 
     /**
      * You should implement the hashCode() so that two equal RecordId instances
      * (with respect to equals()) have the same hashCode().
-     *
+     * 
      * @return An int that is the same for equal RecordId objects.
      */
     @Override
     public int hashCode() {
-        // some code goes here
-        return 31 *this.tupleno + pid.hashCode();
+        return tupleno << 16 + pid.hashCode();
 
     }
 
