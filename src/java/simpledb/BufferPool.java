@@ -217,9 +217,14 @@ public class BufferPool {
     /**
      * Discards a page from the buffer pool.
      * Flushes the page to disk to ensure dirty pages are updated on disk.
+     *
+     * eviction policy:
+     * get a list of keys in the hashmap, retrieve the first key in the list,
+     * and remove it from the hashmap.
      */
     private synchronized  void evictPage() throws DbException {
         // some code goes here
+        pages.remove(pages.keys().nextElement());
     }
 
 }
