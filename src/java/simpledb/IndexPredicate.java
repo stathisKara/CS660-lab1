@@ -9,6 +9,9 @@ import java.io.Serializable;
 public class IndexPredicate implements Serializable {
 	
     private static final long serialVersionUID = 1L;
+
+    private Predicate.Op op;
+    private Field fieldValue;
 	
     /**
      * Constructor.
@@ -21,16 +24,18 @@ public class IndexPredicate implements Serializable {
      */
     public IndexPredicate(Predicate.Op op, Field fvalue) {
         // some code goes here
+        this.op = op;
+        this.fieldValue = fvalue;
     }
 
     public Field getField() {
         // some code goes here
-        return null;
+        return fieldValue;
     }
 
     public Predicate.Op getOp() {
         // some code goes here
-        return null;
+        return op;
     }
 
     /** Return true if the fieldvalue in the supplied predicate
@@ -40,7 +45,10 @@ public class IndexPredicate implements Serializable {
     */
     public boolean equals(IndexPredicate ipd) {
         // some code goes here
-        return false;
+        if (ipd == null)
+            return false;
+        else
+            return (op.equals(ipd.op) && fieldValue.equals(ipd.fieldValue));
     }
 
 }
