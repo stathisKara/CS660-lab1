@@ -196,7 +196,54 @@ public class BTreeFile implements DbFile {
 			Field f) 
 					throws DbException, TransactionAbortedException {
 		// some code goes here
-        return null;
+
+		// we need to check what kind of page we are looking for. If it is a leaf page,
+		// we can return it from the buffer pool.
+		// If it is not a leaf page, that means we are in the middle of recursing, so it is an internal
+		// page that we have come across while looking for the leaf page.
+		switch (pid.pgcateg()) {
+			case BTreePageId.LEAF:
+				// we have the page in the buffer pool, find it and return it
+				return (BTreeLeafPage) (this.getPage(tid, dirtypages, pid, perm));
+			case BTreePageId.INTERNAL:
+				// we need to continue recursing
+				// get the values in the page to figure out where we need to go next
+				// (find the value with the right leaf node):
+				BTreeInternalPage pg = (BTreeInternalPage) (this.getPage(tid, dirtypages, pid, perm));
+				// create an iterator to iterate over those values
+				Iterator<BTreeEntry> es = pg.iterator();
+				// if there are no value on this internal page, something is wrong
+				if (es == null || !es.hasNext())
+					throw new DbException("Illegal request, iterator cannot find an entry.");
+				// if f is null, then we just want the left-most leaf node in the tree, so we
+				// continue recursing with the left-most leaf node of this internal page
+				if (f == null)
+					return findLeafPage(tid, dirtypages, es.next().getLeftChild(), perm, f);
+				// if f is not null, we need to recurse through the values in this internal
+				// page and figure out which one corresponds with the page we want.
+				// store the current value of the iterator in a variable:
+				BTreeEntry e = es.next();
+				while (true) {
+					if (e.getKey().compare(Op.GREATER_THAN_OR_EQ, f))
+						// if the current value is greater than or equal to our target value,
+						// return the left node of that value
+						return findLeafPage(tid, dirtypages, e.getLeftChild(), perm, f);
+					if (es.hasNext())
+						// if the current value is less than our target value,
+						// continue iterating, we could still be able to find our value
+						e = es.next();
+					else {
+						// if there are no more values, then the value we want if in the
+						// right-most leaf of the tree, so we exit this loop and return that later
+						break;
+					}
+				}
+				// if we haven't exited the loop yet, we want to recurse to the right-most leaf
+				return findLeafPage(tid, dirtypages, e.getRightChild(), perm, f);
+			// if something weird is passed into pid, throw an error
+			default:
+				throw new DbException("Illegal pageid type.");
+		}
 	}
 	
 	/**
