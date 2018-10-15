@@ -305,12 +305,11 @@ public class BTreeFile implements DbFile {
 			left_entries += 1;
 		
 		Iterator<Tuple> it = page.reverseIterator();
-		int i =0;
-		while(i<left_entries && it.hasNext()){
+		int i = 0;
+		while (i < left_entries && it.hasNext()) {
 			Tuple t = it.next();
-			new_page.insertTuple(t);
-			System.out.println(" num of tuples is: "+ t + "\n current i is:" + new_page.getTuple(i));
 			page.deleteTuple(t);
+			new_page.insertTuple(t);
 			i++;
 		}
 
@@ -318,7 +317,8 @@ public class BTreeFile implements DbFile {
 		new_page.setRightSiblingId(page.getRightSiblingId());
 		new_page.setLeftSiblingId(page.getId());
 		page.setRightSiblingId(new_page.getId());
-		((BTreeLeafPage) getPage(tid, dirtypages, new_page.getRightSiblingId(), Permissions.READ_WRITE)).setLeftSiblingId(new_page.getId());
+		if (new_page.getRightSiblingId() != null)
+			((BTreeLeafPage) getPage(tid, dirtypages, new_page.getRightSiblingId(), Permissions.READ_WRITE)).setLeftSiblingId(new_page.getId());
 
 //        ((BTreeInternalPage) getPage(tid, dirtypages, new_page.getParentId(), Permissions.READ_ONLY)).setBeforeImage();
 //
@@ -370,19 +370,22 @@ public class BTreeFile implements DbFile {
 												  BTreeInternalPage page, Field field)
 			throws DbException, IOException, TransactionAbortedException {
 		// some code goes here
+		
+		//Create new page for keys
 		BTreeInternalPage new_page = (BTreeInternalPage) getEmptyPage(tid, dirtypages, BTreePageId.INTERNAL);
 		
 		int keys_number = page.getNumEntries();
-		
 		//Larger number of entries after split 'has' to be on the left :)
-		int left_entries = keys_number / 2 + keys_number % 2;
+		int left_entries = keys_number / 2  + keys_number%2;
 		
 		Iterator<BTreeEntry> it = page.reverseIterator();
 		BTreeEntry current_entry = null;
-		for (int i = left_entries; i < keys_number; i++) {
+		int i = 0;
+		while (i < left_entries - 1 && it.hasNext()) {
 			current_entry = it.next();
-			new_page.insertEntry(current_entry);
 			page.deleteKeyAndRightChild(current_entry);
+			new_page.insertEntry(current_entry);
+			i++;
 		}
 		
 		BTreeInternalPage parent = (BTreeInternalPage) getParentWithEmptySlots(tid, dirtypages, page.getParentId(), field);
