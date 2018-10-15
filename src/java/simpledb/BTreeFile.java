@@ -373,21 +373,21 @@ public class BTreeFile implements DbFile {
 		
 		//Create new page for keys
 		BTreeInternalPage new_page = (BTreeInternalPage) getEmptyPage(tid, dirtypages, BTreePageId.INTERNAL);
-		
+		//Number of key entries in page
 		int keys_number = page.getNumEntries();
 		//Larger number of entries after split 'has' to be on the left :)
 		int left_entries = keys_number / 2  + keys_number%2;
 		
+		//Move 2nd half of entries to the new page using a reverse iterator
 		Iterator<BTreeEntry> it = page.reverseIterator();
 		BTreeEntry current_entry = null;
 		int i = 0;
-		while (i < left_entries - 1 && it.hasNext()) {
+		while (i < keys_number-left_entries && it.hasNext()) {
 			current_entry = it.next();
 			page.deleteKeyAndRightChild(current_entry);
 			new_page.insertEntry(current_entry);
 			i++;
 		}
-		
 		BTreeInternalPage parent = (BTreeInternalPage) getParentWithEmptySlots(tid, dirtypages, page.getParentId(), field);
 		
 		BTreeEntry key_entry;
@@ -770,6 +770,10 @@ public class BTreeFile implements DbFile {
 											 BTreeInternalPage page, BTreeInternalPage leftSibling, BTreeInternalPage parent,
 											 BTreeEntry parentEntry) throws DbException, IOException, TransactionAbortedException {
 		// some code goes here
+		if (leftSibling.getNumEntries() > leftSibling.getNumEntries()/2 + 1){
+		
+		}
+	
 	}
 	
 	/**
