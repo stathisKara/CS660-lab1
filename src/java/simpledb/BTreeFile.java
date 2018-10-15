@@ -299,18 +299,15 @@ public class BTreeFile implements DbFile {
 		BTreeLeafPage new_page = (BTreeLeafPage) getEmptyPage(tid, dirtypages, BTreePageId.LEAF);
 		
 		int tuples_number = page.getNumTuples();
-		int left_entries = tuples_number / 2;
 		//Larger number of entries after split 'has' to be on the left :)
-		if (tuples_number % 2 == 1)
-			left_entries += 1;
+		int right_entries = tuples_number / 2 + tuples_number%2;
 		
 		Iterator<Tuple> it = page.reverseIterator();
-		int i = 0;
-		while (i < left_entries && it.hasNext()) {
+		
+		for (int i = 0; i < right_entries ; i++) {
 			Tuple t = it.next();
 			page.deleteTuple(t);
 			new_page.insertTuple(t);
-			i++;
 		}
 
 //      Fix pointers
@@ -325,7 +322,7 @@ public class BTreeFile implements DbFile {
 		Field key_field;
 		
 		if (page.getNumTuples() > new_page.getNumTuples())
-			key_field = page.getTuple(left_entries - 1).getField(keyField);
+			key_field = page.getTuple(right_entries - 1).getField(keyField);
 		else
 			key_field = new_page.getTuple(0).getField(keyField);
 
@@ -376,17 +373,16 @@ public class BTreeFile implements DbFile {
 		//Number of key entries in page
 		int keys_number = page.getNumEntries();
 		//Larger number of entries after split 'has' to be on the left :)
-		int left_entries = keys_number / 2  + keys_number%2;
+		int right_entries = keys_number / 2 + keys_number % 2;
 		
 		//Move 2nd half of entries to the new page using a reverse iterator
 		Iterator<BTreeEntry> it = page.reverseIterator();
 		BTreeEntry current_entry = null;
-		int i = 0;
-		while (i < keys_number-left_entries && it.hasNext()) {
+		
+		for (int i = 0; i < right_entries - 1; i++) {
 			current_entry = it.next();
 			page.deleteKeyAndRightChild(current_entry);
 			new_page.insertEntry(current_entry);
-			i++;
 		}
 		BTreeInternalPage parent = (BTreeInternalPage) getParentWithEmptySlots(tid, dirtypages, page.getParentId(), field);
 		
@@ -770,10 +766,8 @@ public class BTreeFile implements DbFile {
 											 BTreeInternalPage page, BTreeInternalPage leftSibling, BTreeInternalPage parent,
 											 BTreeEntry parentEntry) throws DbException, IOException, TransactionAbortedException {
 		// some code goes here
-		if (leftSibling.getNumEntries() > leftSibling.getNumEntries()/2 + 1){
 		
-		}
-	
+		
 	}
 	
 	/**
