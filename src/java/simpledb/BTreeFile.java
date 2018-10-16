@@ -207,7 +207,7 @@ public class BTreeFile implements DbFile {
 			case BTreePageId.INTERNAL:
 				// we need to continue recursing
 				// get the values in the page to figure out where we need to go next
-				// (find the value with the right leaf node):
+				// (find the value with the correct leaf node):
 				BTreeInternalPage pg = (BTreeInternalPage) (this.getPage(tid, dirtypages, pid, perm));
 				// create an iterator to iterate over those values
 				Iterator<BTreeEntry> valueIterator = pg.iterator();
@@ -218,7 +218,7 @@ public class BTreeFile implements DbFile {
 				// continue recursing with the left-most leaf node of this internal page
 				if (f == null)
 					return findLeafPage(tid, dirtypages, valueIterator.next().getLeftChild(), perm, f);
-				// if f is not null, we need to recurse through the values in this internal
+				// if f is not null, we need to iterate through the values in this internal
 				// page and figure out which one corresponds with the page we want.
 				// store the current value of the iterator in a variable:
 				BTreeEntry currentValue = valueIterator.next();
@@ -232,7 +232,7 @@ public class BTreeFile implements DbFile {
 						// continue iterating, we could still be able to find our value
 						currentValue = valueIterator.next();
 					else {
-						// if there are no more values, then the value we want if in the
+						// if there are no more values, then the value we want is in the
 						// right-most leaf of the tree, so we exit this loop and return that later
 						break;
 					}
@@ -303,7 +303,7 @@ public class BTreeFile implements DbFile {
 		int right_entries = tuples_number / 2 + tuples_number%2;
 		
 		Iterator<Tuple> it = page.reverseIterator();
-		
+
 		for (int i = 0; i < right_entries ; i++) {
 			Tuple t = it.next();
 			page.deleteTuple(t);
@@ -372,13 +372,13 @@ public class BTreeFile implements DbFile {
 		BTreeInternalPage new_page = (BTreeInternalPage) getEmptyPage(tid, dirtypages, BTreePageId.INTERNAL);
 		//Number of key entries in page
 		int keys_number = page.getNumEntries();
-		//Larger number of entries after split 'has' to be on the left :)
+		//Larger number of entries after split 'has' to be on the right :)
 		int right_entries = keys_number / 2 + keys_number % 2;
 		
 		//Move 2nd half of entries to the new page using a reverse iterator
 		Iterator<BTreeEntry> it = page.reverseIterator();
 		BTreeEntry current_entry = null;
-		
+
 		for (int i = 0; i < right_entries - 1; i++) {
 			current_entry = it.next();
 			page.deleteKeyAndRightChild(current_entry);
@@ -692,6 +692,42 @@ public class BTreeFile implements DbFile {
 		// Move some of the tuples from the sibling to the page so
 		// that the tuples are evenly distributed. Be sure to update
 		// the corresponding parent entry.
+
+        int loot = (sibling.getNumTuples() - page.getNumTuples()) / 2;
+
+        if (!(sibling.getNumTuples() > (sibling.getMaxTuples()/2 + (sibling.getMaxTuples() % 2))))
+            throw new DbException("Only steal from siblings with tuples to spare.");
+
+        Iterator<Tuple> thief;
+
+        if (isRightSibling)
+            thief = sibling.iterator();
+        else
+            thief = sibling.reverseIterator();
+
+        if (thief == null || !thief.hasNext())
+            throw new DbException("A thief can't steal from an empty bank.");
+
+        Tuple thiefsDemand = null;
+
+        for (int demands = 0; demands < loot; demands++) {
+            if (!thief.hasNext())
+                throw new DbException("The thief has stolen everything from the bank.");
+            thiefsDemand = thief.next();
+            sibling.deleteTuple(thiefsDemand);
+            page.insertTuple(thiefsDemand);
+        }
+
+        // WEEEE OOOO WEEE OOOO...The cops are on their way, you've stolen everything you can, you need to get out of there!
+
+        // now we need to update the key entry in the parent.
+        // if the sibling is the right sibling, the key is the next entry in the page that we haven't read.
+        // if the sibling is the left sibling (i.e. not the right sibling), the key is the last entry we read.
+        if (isRightSibling)
+            thiefsDemand = thief.next();
+        // set the new kay value in the parent
+        entry.setKey(thiefsDemand.getField(keyField));
+        parent.updateEntry(entry);
 	}
 	
 	/**
@@ -766,8 +802,33 @@ public class BTreeFile implements DbFile {
 											 BTreeInternalPage page, BTreeInternalPage leftSibling, BTreeInternalPage parent,
 											 BTreeEntry parentEntry) throws DbException, IOException, TransactionAbortedException {
 		// some code goes here
-		
-		
+
+        // It's like you're the mob, you have to steal a lot of things
+        int crimes = (leftSibling.getNumEntries() - page.getNumEntries()) / 2;
+
+        if (!(leftSibling.getNumEntries() > (leftSibling.getMaxEntries()/2 + (leftSibling.getMaxEntries() % 2))))
+            throw new DbException("Only steal from siblings with tuples to spare.");
+
+        Iterator<BTreeEntry> mafia = leftSibling.reverseIterator();
+
+        if (mafia == null || !mafia.hasNext())
+            throw new DbException("The mafia knows better than to steal from an empty bank.");
+
+        BTreeEntry theFiveFamilies = new BTreeEntry(parentEntry.getKey(), null, page.iterator().next().getLeftChild());
+
+        for (int favors = 0; favors < crimes; favors++) {
+            if (!mafia.hasNext())
+                throw new DbException("The mafia is out of favors, lay low for a while.");
+            BTreeEntry mob_boss = mafia.next();
+            theFiveFamilies.setLeftChild(mob_boss.getRightChild());
+            page.insertEntry(theFiveFamilies);
+            theFiveFamilies = new BTreeEntry(mob_boss.getKey(), null, mob_boss.getRightChild());
+            leftSibling.deleteKeyAndRightChild(mob_boss);
+        }
+        parentEntry.setKey(theFiveFamilies.getKey());
+        parent.updateEntry(parentEntry);
+        updateParentPointers(tid, dirtypages, page);
+        updateParentPointers(tid, dirtypages, leftSibling);
 	}
 	
 	/**
@@ -795,6 +856,34 @@ public class BTreeFile implements DbFile {
 		// that the entries are evenly distributed. Be sure to update
 		// the corresponding parent entry. Be sure to update the parent
 		// pointers of all children in the entries that were moved.
+
+        // it's like you're a pirate, you have a lot of ships to pillage
+
+        int plunderage = (rightSibling.getNumEntries() - page.getNumEntries()) / 2;
+
+        if (!(rightSibling.getNumEntries() > (rightSibling.getMaxEntries()/2 + (rightSibling.getMaxEntries() % 2))))
+            throw new DbException("Only steal from siblings with tuples to spare.");
+
+        Iterator<BTreeEntry> pirate = rightSibling.iterator();
+
+        if (pirate == null || !pirate.hasNext())
+            throw new DbException("A pirate would never pillage an empty ship.");
+
+        BTreeEntry center_mast = new BTreeEntry(parentEntry.getKey(), page.reverseIterator().next().getRightChild(), null);
+
+        for (int ships_taken = 0; ships_taken < plunderage; ships_taken++) {
+            if (!pirate.hasNext())
+                throw new DbException("Arrrrgh matey, there are no more ships to pillage here.");
+            BTreeEntry next_ship = pirate.next();
+            center_mast.setRightChild(next_ship.getLeftChild());
+            page.insertEntry(center_mast);
+            center_mast = new BTreeEntry(next_ship.getKey(), next_ship.getLeftChild(), null);
+            rightSibling.deleteKeyAndLeftChild(next_ship);
+        }
+        parentEntry.setKey(center_mast.getKey());
+        parent.updateEntry(parentEntry);
+        updateParentPointers(tid, dirtypages, page);
+        updateParentPointers(tid, dirtypages, rightSibling);
 	}
 	
 	/**
