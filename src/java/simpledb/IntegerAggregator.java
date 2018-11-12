@@ -1,7 +1,7 @@
 package simpledb;
 
-import javafx.util.Pair;
-import org.omg.CORBA.INTERNAL;
+//import javafx.util.Pair;
+//import org.omg.CORBA.INTERNAL;
 
 import javax.naming.OperationNotSupportedException;
 import java.util.ArrayList;

@@ -80,6 +80,7 @@ public class HashEquiJoin extends Operator {
         // some code goes here
 	    child1.open();
 	    child2.open();
+	    super.open();
 	    loadMap();
     }
 
