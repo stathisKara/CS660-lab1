@@ -78,6 +78,7 @@ public class HashEquiJoin extends Operator {
     public void open() throws DbException, NoSuchElementException,
             TransactionAbortedException {
         // some code goes here
+		super.open();
 	    child1.open();
 	    child2.open();
 	    super.open();
