@@ -66,6 +66,7 @@ public class StringAggregator implements Aggregator {
 	 */
 	public DbIterator iterator() {
 		// some code goes here
+		
 		if (!(this.what == Op.COUNT))
 			throw new UnsupportedOperationException("please implement me for lab3");
 		
@@ -97,7 +98,6 @@ public class StringAggregator implements Aggregator {
 			}
 			groupedTuples.add(groupedTuple);
 		}
-		
 		return new TupleIterator(groupTd, groupedTuples);
 	}
 	

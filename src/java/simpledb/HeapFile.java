@@ -103,6 +103,11 @@ public class HeapFile implements DbFile {
 	public void writePage(Page page) throws IOException {
 		// some code goes here
 		// not necessary for lab1|lab2
+		RandomAccessFile filePointer = new RandomAccessFile(this.getFile(), "rw");
+		filePointer.seek(BufferPool.getPageSize() * page.getId().pageNumber());
+		filePointer.write(page.getPageData(), 0, BufferPool.getPageSize());
+		filePointer.close();
+		
 	}
 	
 	/**
@@ -127,16 +132,27 @@ public class HeapFile implements DbFile {
 			if (page.getNumEmptySlots() > 0)
 				break;
 		}
+		if (page!=null)
+			if (page.getNumEmptySlots() == 0)
+				page = null;
+		
 		
 		//If we did not find a page with empty space, we need to create a new one
 		if (page == null) {
 			HeapPageId heapPageId = new HeapPageId(this.getId(), this.numPages());
 			page = new HeapPage(heapPageId, HeapPage.createEmptyPageData());
+			page.insertTuple(t);
+			
+			//Write page to heappage file
+			this.writePage(page);
+			
+		}
+		else {
+			page.insertTuple(t);
 		}
 		
-		page.insertTuple(t);
 		return new ArrayList<>(Arrays.asList(page));
-//		return null;
+		
 		// not necessary for lab1|lab2
 	}
 	
