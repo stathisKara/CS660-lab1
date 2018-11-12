@@ -33,6 +33,8 @@ public class Insert extends Operator {
 		this.transactionId = t;
 		this.it = child;
 		this.tid = tableId;
+		
+		this.td = new TupleDesc(new Type[]{Type.INT_TYPE}, (new String[]{"Inserted"}));
 	}
 	
 	public TupleDesc getTupleDesc() {
@@ -81,12 +83,12 @@ public class Insert extends Operator {
 			
 			try {
 				Database.getBufferPool().insertTuple(this.transactionId, this.tid, curTuple);
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				throw new DbException("Insertion failed");
 			}
-			inserted ++;
+			inserted++;
 		}
+		System.out.println(this.td);
 		Tuple finalTuple = new Tuple(this.td);
 		finalTuple.setField(0, new IntField(inserted));
 		this.newTupleInserted = true;
@@ -96,11 +98,12 @@ public class Insert extends Operator {
 	@Override
 	public DbIterator[] getChildren() {
 		// some code goes here
-		return null;
+		return new DbIterator[]{this.it};
 	}
 	
 	@Override
 	public void setChildren(DbIterator[] children) {
 		// some code goes here
+		this.it = children[0];
 	}
 }
