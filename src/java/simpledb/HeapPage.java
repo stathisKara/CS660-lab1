@@ -254,6 +254,16 @@ public class HeapPage implements Page {
 	public void deleteTuple(Tuple t) throws DbException {
 		// some code goes here
 		// not necessary for lab1|lab2
+		RecordId rid = t.getRecordId();
+		if (rid == null || !this.pid.equals(rid.getPageId())) {
+			throw new DbException("Tuple not on page.");
+		}
+		
+		//Check if tuple is already deleted
+		if (!isSlotUsed(rid.tupleno()))
+			throw new DbException("Tuple does not exist");
+		markSlotUsed(rid.tupleno(), false);
+		tuples[rid.tupleno()] = null;
 	}
 	
 	/**
@@ -271,7 +281,7 @@ public class HeapPage implements Page {
 		//Check if tuples match
 		if (!td.equals(t.getTupleDesc()))
 			throw new DbException("Tuples are not of same type.");
-		
+
 //		for (int i =0; i <this.header.length; i++)
 //			System.out.println(this.header[i]);
 //		System.out.println("----------------------");
@@ -349,9 +359,9 @@ public class HeapPage implements Page {
 		// some code goes here
 		// not necessary for lab1|lab2
 		int bitPos = i % 8;
-		int bytePos = (i-bitPos) / 8;
+		int bytePos = (i - bitPos) / 8;
 		
-		if (isSlotUsed(i) || value){
+		if (isSlotUsed(i) || value) {
 			header[bytePos] ^= (1 << bitPos);
 		}
 	}
