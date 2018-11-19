@@ -233,7 +233,34 @@ public class JoinOptimizer {
 
         // some code goes here
         //Replace the following
-        return joins;
+		PlanCache plans = new PlanCache();
+	
+		int maxNumofSubsets = enumerateSubsets(joins, 1).size();
+		for (int i = 1; i <= maxNumofSubsets; ++i) {
+			for (Set<LogicalJoinNode> joinsSubset : enumerateSubsets(joins, i)) {
+				//Constructor initializes cost card with max values
+				CostCard bestPlan = new CostCard();
+			
+				for (LogicalJoinNode logicalJoinNode : joinsSubset) {
+					CostCard curPlan = computeCostAndCardOfSubplan(stats, filterSelectivities, logicalJoinNode, joinsSubset, bestPlan.cost, plans);
+					if (curPlan != null) {
+						if (curPlan.cost < bestPlan.cost) {
+							bestPlan = curPlan;
+						}
+					}
+				}
+				plans.addPlan(joinsSubset, bestPlan.cost, bestPlan.card, bestPlan.plan);
+			}
+		}
+	
+		//Get the best plans from the hash set of joins se we only check for every unique set
+		Vector<LogicalJoinNode> best = plans.getOrder(new HashSet<>(joins));
+//		System.out.println("best is " + plans.bestCosts);
+		// Display joins for IMDB test if explain flag is on
+		if (explain) {
+			printJoins(best, plans, stats, filterSelectivities);
+		}
+		return best;
     }
 
     // ===================== Private Methods =================================
