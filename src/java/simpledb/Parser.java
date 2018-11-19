@@ -553,9 +553,10 @@ public class Parser {
                     if (a instanceof simpledb.ParsingException
                             || a instanceof Zql.ParseException)
                         throw new ParsingException((Exception) a);
-                    if (a instanceof Zql.TokenMgrError)
+                    if (a instanceof Zql.TokenMgrError) {
                         throw (Zql.TokenMgrError) a;
-                    throw new DbException(a.getMessage());
+                        //throw new DbException(a.getMessage());
+                    }
                 } finally {
                     if (!inUserTrans)
                         curtrans = null;
