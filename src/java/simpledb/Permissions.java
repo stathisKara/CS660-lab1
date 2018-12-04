@@ -22,5 +22,12 @@ public class Permissions {
 
   public static final Permissions READ_ONLY = new Permissions(0);
   public static final Permissions READ_WRITE = new Permissions(1);
+  public static final Permissions NO_LOCK = new Permissions(2);
 
+	@Override
+	public boolean equals(Object obj) {
+		if(! (obj instanceof Permissions))
+			return false;
+		return this.permLevel == ((Permissions) obj).permLevel;
+	}
 }

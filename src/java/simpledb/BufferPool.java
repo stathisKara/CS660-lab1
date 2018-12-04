@@ -3,10 +3,8 @@ package simpledb;
 import java.io.*;
 
 import java.nio.Buffer;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -27,6 +25,10 @@ public class BufferPool {
 	private static final int PAGE_SIZE = 4096;
 	
 	private static int pageSize = PAGE_SIZE;
+
+	private static int TIMEOUT_THRESHOLD = 20200;
+	static boolean DEBUG_ON = false;
+	static boolean DETECT_DEADLOCK = false;
 	
 	/**
 	 * Default number of pages passed to the constructor. This is used by
@@ -37,6 +39,9 @@ public class BufferPool {
 	
 	final int numPages;   // number of pages -- currently, not enforced
 	final ConcurrentHashMap<PageId, Page> pages; // hash table storing current pages in memory
+	private LockManager lm;
+
+	private ConcurrentHashMap<PageId, Integer> lruCache;
 	
 	/**
 	 * Creates a BufferPool that caches up to numPages pages.
@@ -46,6 +51,7 @@ public class BufferPool {
 	public BufferPool(int numPages) {
 		this.numPages = numPages;
 		this.pages = new ConcurrentHashMap<PageId, Page>();
+		lm = new LockManager();
 	}
 	
 	public static int getPageSize() {
@@ -82,20 +88,71 @@ public class BufferPool {
 		// XXX Yuan points out that HashMap is not synchronized, so this is buggy.
 		// XXX TODO(ghuo): do we really know enough to implement NO STEAL here?
 		//     won't we still evict pages?
-		Page p;
-		synchronized (this) {
-			p = pages.get(pid);
-			if (p == null) {
-				if (pages.size() >= numPages) {
-					evictPage();
+
+		//some code goes here
+		// Acquire the proper lock first
+		long start = System.currentTimeMillis();
+		boolean success = lm.acquireLock(tid, pid, perm);
+		Random r = new Random();
+		while (!success) {
+			try {
+				long end = System.currentTimeMillis();
+				if (end - start > (TIMEOUT_THRESHOLD + r.nextInt(100))) {
+					System.out.println("Abort: waiting for Tid = " + tid.getId() + ", Pid = " + pid.toString() + ", Perm = " + perm.toString());
+					throw new TransactionAbortedException();
 				}
-				
-				p = Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid);
-				pages.put(pid, p);
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
+			success = lm.acquireLock(tid, pid, perm);
 		}
-		
-		return p;
+		// Now we have the proper lock
+		if (!pages.containsKey(pid)) {
+			if (pages.size() == numPages)
+				evictPage();
+			pages.put(pid, Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid));
+			pages.get(pid).setBeforeImage();
+		}
+
+		if (perm == Permissions.READ_WRITE)
+			pages.get(pid).markDirty(true, tid);
+
+		return pages.get(pid);
+//		Page p = this.pages.get(pid);
+//
+//		if (p != null) {
+//			// Do LRU Cache update
+//			for (PageId piddd: this.lruCache.keySet()) {
+//				int times = this.lruCache.get(piddd);
+//				this.lruCache.replace(piddd, times + 1);
+//			}
+//			this.lruCache.replace(pid, 1);
+//			return p;
+//		} else {
+//			p = Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid);
+//			if (this.pages.size() == this.numPages) {
+//				this.evictPage();
+//			}
+//			this.lruCache.put(pid, 1);
+//			this.pages.put(pid, p);
+//			return p;
+//		}
+
+//		Page p;
+//		synchronized (this) {
+//			p = pages.get(pid);
+//			if (p == null) {
+//				if (pages.size() >= numPages) {
+//					evictPage();
+//				}
+//
+//				p = Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid);
+//				pages.put(pid, p);
+//			}
+//		}
+//
+//		return p;
 	}
 	
 	/**
@@ -110,6 +167,7 @@ public class BufferPool {
 	public void releasePage(TransactionId tid, PageId pid) {
 		// some code goes here
 		// not necessary for lab1|lab2|lab3
+		lm.releaseLock(tid, pid);
 	}
 	
 	/**
@@ -128,7 +186,7 @@ public class BufferPool {
 	public boolean holdsLock(TransactionId tid, PageId p) {
 		// some code goes here
 		// not necessary for lab1|lab2|lab3
-		return false;
+		return lm.holdsLock(tid, p);
 	}
 	
 	/**
@@ -269,6 +327,295 @@ public class BufferPool {
 		
 		this.discardPage(evict);
 	}
-	
-	
+
+	private class LockManager {
+		private HashMap<PageId, Set<TransactionId>> sharers;
+		private HashMap<PageId, TransactionId> owners;
+		private HashMap<TransactionId, Set<PageId>> sharedPages;
+		private HashMap<TransactionId, Set<PageId>> ownedPages;
+
+		private HashMap<PageId, Set<TransactionId>> waiters;
+		private HashMap<TransactionId, PageId> waitedPages;
+
+		private HashMap<TransactionId, Set<TransactionId>> waitingTx;
+
+//        private class Dep {
+//        	TransactionId stid;
+//        	TransactionId dtid;
+//        	PageId pid;
+//        	Permissions perm;
+//
+//        	Dep(TransactionId stid, TransactionId dtid, PageId pid, Permissions perm){
+//        		this.stid = stid;
+//        		this.dtid = dtid;
+//        		this.pid = pid;
+//        		this.perm = perm;
+//        	}
+//        }
+//        private HashSet<Dep> dep = new HashSet<Dep>();
+
+		public LockManager() {
+			sharers = new HashMap<PageId, Set<TransactionId>>();
+			owners = new HashMap<PageId, TransactionId>();
+			sharedPages = new HashMap<TransactionId, Set<PageId>>();
+			ownedPages = new HashMap<TransactionId, Set<PageId>>();
+			waiters = new HashMap<PageId, Set<TransactionId>>();
+			waitedPages = new HashMap<TransactionId, PageId>();
+
+			waitingTx = new HashMap<TransactionId, Set<TransactionId>>();
+		}
+		public synchronized boolean acquireLock(TransactionId tid, PageId pid, Permissions perm)
+				throws TransactionAbortedException {
+			checkConsistency();
+			//System.out.println("************************************************************************************************************************Want: Tid = " + tid.toString() + ", Pid = " + pid.toString() + ", Perm = " + perm.toString());
+			boolean success = false;
+			if (perm.equals(Permissions.READ_WRITE)) {
+				success = acquireExclusiveLock(tid, pid);
+			} else if (perm.equals(Permissions.READ_ONLY)) {
+				success = acquireSharedLock(tid, pid);
+			} else if (perm.equals(Permissions.NO_LOCK)) {
+				if (BufferPool.DEBUG_ON) System.out.println("Tx "+tid.getId() +" Nol "+pid);
+				success = true;
+			} else {
+				assert false : "What?!";
+			}
+			if (success) {
+
+				//System.out.println("Success: Tid = " + tid.toString() + ", Pid = " + pid.toString() + ", Perm = " + perm.toString());
+				//removeWaiter(tid, pid);
+				waitingTx.remove(tid);
+				return true;
+			} else {
+				if (waitingTx.get(tid) == null ) waitingTx.put(tid, new HashSet<TransactionId>());
+				if (perm.equals(Permissions.READ_WRITE)){
+					// add edges for every Tx that has a read lock on this page
+					Set<TransactionId> sharer = sharers.get(pid);
+					if (sharer != null) {
+						for( TransactionId t: sharer){
+							waitingTx.get(tid).add(t);
+							//dep.add(new Dep(tid, t, pid, perm));
+						}
+					}
+					TransactionId owner = owners.get(pid);
+					if (owner != null){
+						waitingTx.get(tid).add(owner);
+						//dep.add(new Dep(tid, owner, pid, perm));
+					}
+				} else if (perm.equals(Permissions.READ_ONLY)){
+					TransactionId owner = owners.get(pid);
+					if (owner != null){
+						waitingTx.get(tid).add(owner);
+						//dep.add(new Dep(tid, owner, pid, perm));
+					}
+				}
+				//addWaiter(tid, pid);
+				visited = new HashSet<>();
+				if (DETECT_DEADLOCK && detectDeadlock(tid,tid)) {
+					if (BufferPool.DEBUG_ON){
+						System.out.println("Tx "+tid.getId() +" Deadlock Detected while trying to "+ pid.pageNumber() +" "+perm);
+						PrintDeadlockTree();
+					}
+					waitingTx.remove(tid);
+					// There is a deadlock
+					//removeWaiter(tid, pid);
+
+					throw new TransactionAbortedException();
+				}
+				return false;
+			}
+		}
+		HashSet<TransactionId> visited;
+		private boolean detectDeadlock(TransactionId start, TransactionId cur) {
+			// Maleen
+			// This scheme is not perfect. Can give false positives.
+			// Problem is we do not release an edge when a lock is released.
+			// Difficult to do so without keeping track of what the dependency is for
+			// For now I do not have time to implement the whole thing
+			if (visited.contains(cur)){
+				if (start == cur) return true;
+			} else {
+				visited.add(cur);
+				boolean ret = false;
+				Set<TransactionId> s =waitingTx.get(cur);
+				if (s==null) return ret;
+				for (TransactionId t: s){
+					ret |= detectDeadlock(start, t);
+					if (ret) return true;
+				}
+				return ret;
+			}
+
+
+			return false;
+		}
+
+		private void PrintDeadlockTree(){
+
+			for (TransactionId s : waitingTx.keySet()){
+				String st = " "+s.getId()+" : " + Arrays.toString(waitingTx.get(s).toArray()) ;
+				System.out.println(st);
+				for (TransactionId t : waitingTx.get(s)){
+					//st += t.getId() +", ";
+				}
+				//System.out.println(st);
+			}
+		}
+
+		private void checkConsistency() {
+			for (PageId pid : sharers.keySet()) {
+				assert !owners.keySet().contains(pid) : "Page in sharers is also in owners.";
+				assert sharers.get(pid).size() > 0 : "sharer is actually empty.";
+				for (TransactionId tid : sharers.get(pid)) {
+					assert sharedPages.get(tid).contains(pid) : "Pair in sharers does not exist in sharedPages.";
+				}
+			}
+			for (PageId pid : owners.keySet()) {
+				assert !sharers.keySet().contains(pid) : "Page in owners is also in sharers.";
+				TransactionId tid = owners.get(pid);
+				assert owners.get(pid) != null : "owner is actually empty.";
+				assert ownedPages.get(tid).contains(pid) : "Pair in owners does not exist in ownedPages.";
+			}
+			for (TransactionId tid : sharedPages.keySet()) {
+				assert sharedPages.get(tid).size() > 0 : "SharedPages is actually empty.";
+				for (PageId pid : sharedPages.get(tid)) {
+					assert sharers.get(pid).contains(tid) : "Pair in sharedPages does not exist in sharers.";
+				}
+			}
+			for (TransactionId tid : ownedPages.keySet()) {
+				assert ownedPages.get(tid).size() > 0 : "OwnedPages is actually empty.";
+				for (PageId pid : ownedPages.get(tid)) {
+					assert owners.get(pid).equals(tid) : "Pair in ownedPages does not exist in owners.";
+				}
+			}
+		}
+		public synchronized boolean holdsLock(TransactionId tid, PageId pid) {
+			checkConsistency();
+			TransactionId owner = owners.get(pid);
+			if (owner != null && owner.equals(tid)) return true;
+			Set<TransactionId> sharer = sharers.get(pid);
+			if (sharer != null && sharer.contains(tid)) return true;
+			return false;
+		}
+		private void addWaiter(TransactionId tid, PageId pid) {
+
+
+
+			Set<TransactionId> waiter = waiters.get(pid);
+			if (waiter == null) waiter = new HashSet<TransactionId>();
+			waiter.add(tid);
+			waiters.put(pid, waiter);
+			assert waitedPages.get(tid) == null || waitedPages.get(tid).equals(pid) : "This transaction is waiting for another page!";
+			waitedPages.put(tid, pid);
+		}
+		private void removeWaiter(TransactionId tid, PageId pid) {
+			Set<TransactionId> waiter = waiters.get(pid);
+			if (waiter==null) return ;
+			waiter.remove(tid);
+			if (waiter.size() == 0) waiters.remove(pid);
+			else waiters.put(pid, waiter);
+			waitedPages.remove(tid);
+		}
+		private void addSharer(TransactionId tid, PageId pid) {
+			Set<TransactionId> sharer = sharers.get(pid);
+			if (sharer == null) sharer = new HashSet<TransactionId>();
+			sharer.add(tid);
+			sharers.put(pid, sharer);
+			Set<PageId> sharedPage = sharedPages.get(tid);
+			if (sharedPage == null) sharedPage = new HashSet<PageId>();
+			sharedPage.add(pid);
+			sharedPages.put(tid, sharedPage);
+		}
+		private void addOwner(TransactionId tid, PageId pid) {
+			owners.put(pid, tid);
+			Set<PageId> ownedPage = ownedPages.get(tid);
+			if (ownedPage == null) ownedPage = new HashSet<PageId>();
+			ownedPage.add(pid);
+			ownedPages.put(tid, ownedPage);
+		}
+		private void removeSharer(TransactionId tid, PageId pid) {
+			Set<TransactionId> sharer = sharers.get(pid);
+			sharer.remove(tid);
+			if (sharer.size() == 0) sharers.remove(pid);
+			else sharers.put(pid, sharer);
+			Set<PageId> sharedPage = sharedPages.get(tid);
+			sharedPage.remove(pid);
+			if (sharedPage.size() == 0) sharedPages.remove(tid);
+			else sharedPages.put(tid, sharedPage);
+		}
+		private void removeOwner(TransactionId tid, PageId pid) {
+			owners.remove(pid);
+			Set<PageId> ownedPage = ownedPages.get(tid);
+			ownedPage.remove(pid);
+			if (ownedPage.size() == 0) ownedPages.remove(tid);
+			else ownedPages.put(tid, ownedPage);
+		}
+		private boolean acquireExclusiveLock(TransactionId tid, PageId pid) {
+			checkConsistency();
+			Set<TransactionId> sharer = sharers.get(pid);
+			TransactionId owner = owners.get(pid);
+			assert owner == null || sharer == null : "owner and sharer are not null at the same time!";
+			// There is an existing owner other than itself
+			if (owner != null && !owner.equals(tid)) return false;
+			// There is an existing sharer other than itself
+			if (sharer != null && ( (sharer.size() > 1) || (sharer.size() == 1 && !sharer.contains(tid)) )) return false;
+			if (sharer != null) {
+				// It holds the shared permission already
+				assert (sharer.size() == 1 && sharer.contains(tid)) : "Consistency issue.";
+				removeSharer(tid, pid);
+			}
+			addOwner(tid, pid);
+			checkConsistency();
+			if (BufferPool.DEBUG_ON) System.out.println("Tx "+ tid.getId() + " Xlock Acq "+ pid);
+			return true;
+		}
+		private boolean acquireSharedLock(TransactionId tid, PageId pid) {
+			checkConsistency();
+			Set<TransactionId> sharer = sharers.get(pid);
+			TransactionId owner = owners.get(pid);
+			if (BufferPool.DEBUG_ON) System.out.println("Tx "+ tid.getId() + " Slock Acq "+ pid);
+			assert owner == null || sharer == null : "owner and sharer are not null at the same time!";
+			if (owner != null && !owner.equals(tid)) {
+				// There is an existing owner other than itself
+				return false;
+			} else {
+				// (owner != null) means it holds the exclusive permission, thus does nothing
+				if (owner == null) addSharer(tid, pid);
+				checkConsistency();
+				return true;
+			}
+		}
+		public synchronized void releaseLock(TransactionId tid, PageId pid) {
+			checkConsistency();
+			//System.out.println("ReleaseLocks: Tid = " + tid.toString() + ", Pid = " + pid.toString());
+			Set<PageId> sharedPage = sharedPages.get(tid);
+			if (sharedPage != null && sharedPage.contains(pid)) {
+				removeSharer(tid, pid);
+			}
+			Set<PageId> ownedPage = ownedPages.get(tid);
+			if (ownedPage != null && ownedPage.contains(pid)) {
+				removeOwner(tid, pid);
+			}
+			if (BufferPool.DEBUG_ON) System.out.println("Tx "+ tid.getId() + " Xlock Rel "+ pid);
+		}
+		public synchronized void releaseAllLocks(TransactionId tid) {
+			checkConsistency();
+			//System.out.println("ReleaseAllLocks: Tid = " + tid.toString());
+			if (sharedPages.get(tid) != null) {
+				for (PageId pid : sharedPages.get(tid)) {
+					Set<TransactionId> sharer = sharers.get(pid);
+					sharer.remove(tid);
+					if (sharer.size() == 0) sharers.remove(pid);
+					else sharers.put(pid, sharer);
+				}
+				sharedPages.remove(tid);
+			}
+			if (ownedPages.get(tid) != null) {
+				for (PageId pid : ownedPages.get(tid)) {
+					owners.remove(pid);
+				}
+				ownedPages.remove(tid);
+			}
+			waitingTx.remove(tid);
+		}
+	}
 }
