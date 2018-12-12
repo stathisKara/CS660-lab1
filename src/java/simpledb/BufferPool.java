@@ -339,30 +339,14 @@ public class BufferPool {
 
 		private HashMap<TransactionId, Set<TransactionId>> waitingTx;
 
-//        private class Dep {
-//        	TransactionId stid;
-//        	TransactionId dtid;
-//        	PageId pid;
-//        	Permissions perm;
-//
-//        	Dep(TransactionId stid, TransactionId dtid, PageId pid, Permissions perm){
-//        		this.stid = stid;
-//        		this.dtid = dtid;
-//        		this.pid = pid;
-//        		this.perm = perm;
-//        	}
-//        }
-//        private HashSet<Dep> dep = new HashSet<Dep>();
-
 		public LockManager() {
-			sharers = new HashMap<PageId, Set<TransactionId>>();
-			owners = new HashMap<PageId, TransactionId>();
-			sharedPages = new HashMap<TransactionId, Set<PageId>>();
-			ownedPages = new HashMap<TransactionId, Set<PageId>>();
-			waiters = new HashMap<PageId, Set<TransactionId>>();
-			waitedPages = new HashMap<TransactionId, PageId>();
-
-			waitingTx = new HashMap<TransactionId, Set<TransactionId>>();
+			sharers = new HashMap<>();
+			owners = new HashMap<>();
+			sharedPages = new HashMap<>();
+			ownedPages = new HashMap<>();
+			waiters = new HashMap<>();
+			waitedPages = new HashMap<>();
+			waitingTx = new HashMap<>();
 		}
 		public synchronized boolean acquireLock(TransactionId tid, PageId pid, Permissions perm)
 				throws TransactionAbortedException {
@@ -413,7 +397,7 @@ public class BufferPool {
 				if (DETECT_DEADLOCK && detectDeadlock(tid,tid)) {
 					if (BufferPool.DEBUG_ON){
 						System.out.println("Tx "+tid.getId() +" Deadlock Detected while trying to "+ pid.pageNumber() +" "+perm);
-						PrintDeadlockTree();
+//						PrintDeadlockTree();
 					}
 					waitingTx.remove(tid);
 					// There is a deadlock
@@ -426,11 +410,6 @@ public class BufferPool {
 		}
 		HashSet<TransactionId> visited;
 		private boolean detectDeadlock(TransactionId start, TransactionId cur) {
-			// Maleen
-			// This scheme is not perfect. Can give false positives.
-			// Problem is we do not release an edge when a lock is released.
-			// Difficult to do so without keeping track of what the dependency is for
-			// For now I do not have time to implement the whole thing
 			if (visited.contains(cur)){
 				if (start == cur) return true;
 			} else {
@@ -449,17 +428,17 @@ public class BufferPool {
 			return false;
 		}
 
-		private void PrintDeadlockTree(){
-
-			for (TransactionId s : waitingTx.keySet()){
-				String st = " "+s.getId()+" : " + Arrays.toString(waitingTx.get(s).toArray()) ;
-				System.out.println(st);
-				for (TransactionId t : waitingTx.get(s)){
-					//st += t.getId() +", ";
-				}
-				//System.out.println(st);
-			}
-		}
+//		private void PrintDeadlockTree(){
+//
+//			for (TransactionId s : waitingTx.keySet()){
+//				String st = " "+s.getId()+" : " + Arrays.toString(waitingTx.get(s).toArray()) ;
+//				System.out.println(st);
+//				for (TransactionId t : waitingTx.get(s)){
+//					//st += t.getId() +", ";
+//				}
+//				//System.out.println(st);
+//			}
+//		}
 
 		private void checkConsistency() {
 			for (PageId pid : sharers.keySet()) {
@@ -497,9 +476,6 @@ public class BufferPool {
 			return false;
 		}
 		private void addWaiter(TransactionId tid, PageId pid) {
-
-
-
 			Set<TransactionId> waiter = waiters.get(pid);
 			if (waiter == null) waiter = new HashSet<TransactionId>();
 			waiter.add(tid);
@@ -553,7 +529,7 @@ public class BufferPool {
 			checkConsistency();
 			Set<TransactionId> sharer = sharers.get(pid);
 			TransactionId owner = owners.get(pid);
-			assert owner == null || sharer == null : "owner and sharer are not null at the same time!";
+			assert owner == null || sharer == null : "You cannot acquire an exclusive lock on a page that is currently being shared by other transaction, or is already owned by another transaction.!";
 			// There is an existing owner other than itself
 			if (owner != null && !owner.equals(tid)) return false;
 			// There is an existing sharer other than itself
