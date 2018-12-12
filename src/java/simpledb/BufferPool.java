@@ -178,6 +178,7 @@ public class BufferPool {
 	public void transactionComplete(TransactionId tid) throws IOException {
 		// some code goes here
 		// not necessary for lab1|lab2|lab3
+		transactionComplete(tid, true);
 	}
 	
 	/**
@@ -200,6 +201,24 @@ public class BufferPool {
 			throws IOException {
 		// some code goes here
 		// not necessary for lab1|lab2|lab3
+		if (BufferPool.DEBUG_ON)
+			System.out.println("Tx" + tid.getId() + (commit ? "commit" : "abort"));
+		try {
+			for (PageId pid : pages.keySet()) {
+				if (pages.get(pid).isDirty() != null && pages.get(pid).isDirty().equals(tid)) {
+					if (commit)
+						flushPage(pid);
+					else
+						pages.put(pid, pages.get(pid).getBeforeImage());
+				}
+			}
+		}
+		catch (NullPointerException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+
+		lm.releaseAllLocks(tid);
 	}
 	
 	/**
@@ -306,6 +325,11 @@ public class BufferPool {
 	public synchronized void flushPages(TransactionId tid) throws IOException {
 		// some code goes here
 		// not necessary for lab1|lab2|lab3
+		for (PageId pid : pages.keySet()) {
+			Page p = pages.get(pid);
+			if (p.isDirty() != null && p.isDirty().equals(tid))
+				flushPage(pid);
+		}
 	}
 	
 	/**
@@ -319,13 +343,46 @@ public class BufferPool {
 	private synchronized void evictPage() throws DbException {
 		// some code goes here
 		
-		PageId evict = pages.keys().nextElement();
-		Iterator<PageId> it = pages.keySet().iterator();
-		while (it.hasNext() && (pages.get(evict).isDirty() != null)) {
-			evict = it.next();
+//		PageId evict = pages.keys().nextElement();
+//		Iterator<PageId> it = pages.keySet().iterator();
+//		while (it.hasNext() && (pages.get(evict).isDirty() != null)) {
+//			evict = it.next();
+//		}
+//
+//		this.discardPage(evict);
+
+		ArrayList<PageId> cleanPages = new ArrayList<>();
+		for (PageId pid : pages.keySet()) {
+			if (pages.get(pid).isDirty() == null) {
+				cleanPages.add(pid);
+			}
 		}
-		
-		this.discardPage(evict);
+
+		if (cleanPages.size() == 0) {
+//			throw new DbException("No clean pages to evict!");
+			try {
+				flushAllPages();
+
+				for (PageId pid : pages.keySet()) {
+					if (pages.get(pid).isDirty() == null) {
+						cleanPages.add(pid);
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		PageId evictionVictim = cleanPages.get((int) Math.floor(Math.random() * cleanPages.size()));
+		try {
+			assert pages.get(evictionVictim).isDirty() == null : "Can't evict a dirty page!";
+			flushPage(evictionVictim);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		pages.remove(evictionVictim);
 	}
 
 	private class LockManager {
