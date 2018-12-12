@@ -233,17 +233,49 @@ public class JoinOptimizer {
 
         // some code goes here
         //Replace the following
+
+//	    PlanCache pc = new PlanCache();
+//
+//	    for(int i = 1; i <= joins.size(); i++)
+//	    {
+//		    for (Set<LogicalJoinNode> es: enumerateSubsets(joins, i))
+//		    {
+//			    Vector<LogicalJoinNode> bestPlan = null; // TO_DO!!!
+//			    double tempBestSoFar = Double.MAX_VALUE;
+//			    int tempCard = 0;
+//			    for(LogicalJoinNode joinToRemove: es)
+//			    {
+//				    CostCard curCC = computeCostAndCardOfSubplan(
+//						    stats, filterSelectivities, joinToRemove, es, tempBestSoFar, pc);
+//				    if(curCC != null)
+//				    {
+//					    tempBestSoFar = curCC.cost;
+//					    bestPlan = curCC.plan;
+//					    tempCard = curCC.card;
+//				    }
+//			    }
+//			    pc.addPlan(es, tempBestSoFar, tempCard, bestPlan);
+//		    }
+//
+//	    }
+//
+//	    Set<LogicalJoinNode> tempSet = new HashSet<LogicalJoinNode>();
+//	    for(Iterator<LogicalJoinNode> it = joins.iterator(); it.hasNext();)
+//	    {
+//		    tempSet.add(it.next());
+//	    }
+//	    return pc.getOrder(tempSet);
 		PlanCache plans = new PlanCache();
-	
+
 		//This is all the possible sizes of subsets we can get
 		int maxNumofSubsets = enumerateSubsets(joins, 1).size();
 		for (int i = 1; i <= maxNumofSubsets; ++i) {
 			//Compute subsets of eveyr possible size
 			for (Set<LogicalJoinNode> joinsSubset : enumerateSubsets(joins, i)) {
-				
+
 				//Constructor initializes cost card with max values
 				CostCard bestPlan = new CostCard();
-			
+
 				//Iterate through every subset and keep the best plan
 				for (LogicalJoinNode logicalJoinNode : joinsSubset) {
 					CostCard curPlan = computeCostAndCardOfSubplan(stats, filterSelectivities, logicalJoinNode, joinsSubset, bestPlan.cost, plans);
@@ -256,10 +288,10 @@ public class JoinOptimizer {
 				plans.addPlan(joinsSubset, bestPlan.cost, bestPlan.card, bestPlan.plan);
 			}
 		}
-	
+
 		//Get the best plans from the hash set of joins se we only check for every unique set
 		Vector<LogicalJoinNode> best = plans.getOrder(new HashSet<>(joins));
-		
+
 		if (explain) {
 			printJoins(best, plans, stats, filterSelectivities);
 		}
